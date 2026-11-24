@@ -1,0 +1,39 @@
+{
+  "name": "@nyt87/tokens",
+  "version": "0.1.0",
+  "description": "Shared design tokens (CSS custom properties) for all projects",
+  "type": "module",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    "./tokens.css": "./dist/tokens.css",
+    "./tokens.json": "./dist/tokens.json",
+    "./theme": {
+      "types": "./src/theme.d.ts",
+      "default": "./src/theme.mjs"
+    },
+    "./tokens.mjs": {
+      "types": "./src/tokens.d.ts",
+      "default": "./src/tokens.mjs"
+    }
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test \"test/*.test.mjs\"",
+    "prepack": "node scripts/build.mjs"
+  },
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NYT87/design-system.git",
+    "directory": "packages/tokens"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ]
+}

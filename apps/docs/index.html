@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>nyt87 Design System</title>
+    <meta name="description" content="Design tokens and React components shared by all nyt87 products." />
+    <link rel="icon" type="image/png" href="./brand/logo-icon.png" />
+    <script>
+      // Set the theme before first paint so there is no flash.
+      try { var t = localStorage.getItem('ds-theme'), a = localStorage.getItem('ds-accent');
+        if (t) document.documentElement.dataset.theme = t; if (a) document.documentElement.dataset.accent = a; } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
