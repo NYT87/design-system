@@ -1,0 +1,120 @@
+name: Release
+
+# Release Please keeps ONE release PR open on main, listing the changes to @nyt87/tokens and @nyt87/ui since their last release.
+# Merging that PR creates the tags (tokens-vX.Y.Z, ui-vX.Y.Z) and GitHub releases, and this workflow then publishes exactly the
+# packages that were released to GitHub Packages. Nothing is published on any other push.
+#
+# Commits must follow Conventional Commits, because they decide the next version (0.x: fix = patch, feat = minor, "!" = minor):
+#   feat(ui): add Tooltip      fix(tokens): darken warn text      feat(ui)!: rename Button prop
+# docs:, chore:, ci:, test:, refactor: commits do not cause a release.
+#
+# A manual run (Actions > Release > Run workflow) publishes the versions currently in package.json that are not on the registry
+# yet: for the very first release, or to retry a failed publish. Versions already published are skipped.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: Which packages to publish
+        type: choice
+        options: [both, tokens, ui]
+        default: both
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  release-please:
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      tokens_created: ${{ steps.rp.outputs['packages/tokens--release_created'] }}
+      ui_created: ${{ steps.rp.outputs['packages/ui--release_created'] }}
+    steps:
+      # Pinned to the commit SHA of v5.0.0 (same pin as the magomap repo).
+      - name: Create or update the release PR, and create releases for merged ones
+        id: rp
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  # PRs opened with GITHUB_TOKEN do not trigger workflows, so CI is dispatched on the release PR's branch.
+  verify-release-pr:
+    needs: release-please
+    if: ${{ !cancelled() && needs.release-please.result == 'success' && needs.release-please.outputs.tokens_created != 'true' && needs.release-please.outputs.ui_created != 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      pull-requests: read
+    steps:
+      - name: Dispatch CI for the open release PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          branch="$(gh api "repos/${GITHUB_REPOSITORY}/pulls?state=open&base=main&per_page=100" \
+            --jq '[.[] | select(.head.repo.full_name == "'"${GITHUB_REPOSITORY}"'" and (.head.ref | test("^release-please--branches--main")))][0].head.ref // empty')"
+          if [ -z "$branch" ]; then echo 'No open release PR to verify.'; exit 0; fi
+          gh workflow run ci.yml --repo "${GITHUB_REPOSITORY}" --ref "$branch"
+          echo "Dispatched CI on $branch."
+
+  publish:
+    needs: release-please
+    if: >-
+      ${{ !cancelled() && needs.release-please.result != 'failure' && (
+        github.event_name == 'workflow_dispatch' ||
+        needs.release-please.outputs.tokens_created == 'true' ||
+        needs.release-please.outputs.ui_created == 'true') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: '@nyt87'
+      - run: npm ci
+      - run: npm run build:tokens
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build -w @nyt87/ui
+      - name: Publish what was released, tokens first (ui depends on it)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT: ${{ github.event_name }}
+          INPUT_PACKAGES: ${{ inputs.packages }}
+          TOKENS_CREATED: ${{ needs.release-please.outputs.tokens_created }}
+          UI_CREATED: ${{ needs.release-please.outputs.ui_created }}
+        run: |
+          set -euo pipefail
+          want=""
+          if [ "$EVENT" = workflow_dispatch ]; then
+            case "$INPUT_PACKAGES" in tokens) want="tokens" ;; ui) want="ui" ;; *) want="tokens ui" ;; esac
+          else
+            [ "$TOKENS_CREATED" = true ] && want="tokens"
+            [ "$UI_CREATED" = true ] && want="$want ui"
+          fi
+          echo "Candidates: ${want:-none}"
+          for p in $want; do
+            name="@nyt87/$p"
+            version="$(node -p "require('./packages/$p/package.json').version")"
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "$name@$version is already published, skipping."
+            else
+              echo "Publishing $name@$version"
+              npm publish -w "$name"
+            fi
+          done

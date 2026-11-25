@@ -20,12 +20,26 @@ npm run build      # static site in apps/docs/dist
 `.github/workflows/pages.yml` tests, builds and deploys `apps/docs/dist` to GitHub Pages on every push to `main` (pull requests only build and test). One-time setup: in the repo go to Settings > Pages and set Source to **GitHub Actions**. The site is then at `https://<owner>.github.io/<repo>/`. The build uses relative asset paths and hash routing, so it works under that sub-path with no config.
 
 ## Releasing the packages
-Both packages are published to GitHub Packages (`https://npm.pkg.github.com`) under the `@nyt87` scope, with the same version number.
-```
-npm version 0.2.0 -ws --no-git-tag-version
-git commit -am "release 0.2.0" && git tag v0.2.0 && git push --follow-tags
-```
-`.github/workflows/publish.yml` checks that the tag matches both versions, runs tests, builds, and publishes `@nyt87/tokens` then `@nyt87/ui`. A version can be published only once: bump it for every release.
+Releases are automated with [Release Please](https://github.com/googleapis/release-please), and each package is versioned on its own.
+
+1. Merge changes to `main` using **Conventional Commits**. The commit type decides the next version (while below 1.0):
+
+   | Commit | Release |
+   |---|---|
+   | `fix(ui): ...`, `fix(tokens): ...` | patch (0.1.0 to 0.1.1) |
+   | `feat(ui): ...`, `feat(tokens): ...` | minor (0.1.1 to 0.2.0) |
+   | `feat(ui)!: ...` or a `BREAKING CHANGE:` footer | minor while 0.x, major from 1.0 |
+   | `docs:`, `chore:`, `ci:`, `test:`, `refactor:` | no release |
+
+   Release Please looks at which folder a commit changed (`packages/tokens` or `packages/ui`), so the scope is for readers.
+2. Release Please opens (and keeps updating) one **release PR** with the version bumps and changelogs. CI is run on it automatically.
+3. **Merge the release PR** when you want to ship. That creates the tags (`tokens-vX.Y.Z`, `ui-vX.Y.Z`) and GitHub releases, and the same workflow then publishes exactly the packages that were released to GitHub Packages.
+
+`@nyt87/ui` accepts any `@nyt87/tokens` 0.x (`>=0.1.0 <1.0.0`). When a tokens change would break the UI package, raise that range in the same PR.
+
+To publish a version that is in `package.json` but not on the registry (a retry, or the first release), run **Actions > Release > Run workflow**. Versions already published are skipped.
+
+Workflows: `ci.yml` (checks on every PR), `release.yml` (release PR and publish), `pages.yml` (docs site on every push to `main`).
 
 ## Using the packages in a project
 GitHub Packages needs a token to install, even for public packages.

@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  # Release PRs are opened with GITHUB_TOKEN, which does not trigger workflows: release.yml dispatches this one for them.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build:tokens
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build
+      - name: The packages must pack and install like a consumer's
+        run: |
+          npm run build -w @nyt87/ui
+          npm pack -w @nyt87/tokens -w @nyt87/ui --dry-run
