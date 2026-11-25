@@ -1,3 +1,16 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/banner/banner-dark.png">
+    <img src=".github/banner/banner-light.png" alt="nyt87 design system: design tokens and framework-free components for every nyt87 product" width="100%">
+  </picture>
+</p>
+
+<p align="center">
+  <a href="https://nyt87.github.io/design-system/">Component guide</a> ·
+  <a href="https://github.com/orgs/NYT87/packages?repo_name=design-system">Packages</a> ·
+  <a href="DESIGN.md">Design language</a>
+</p>
+
 # nyt87 design system
 
 | Package | What |
