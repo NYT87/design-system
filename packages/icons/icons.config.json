@@ -1,0 +1,13 @@
+{
+  "_about": "Icons shipped by @nyt87/icons. Names are Lucide's (https://lucide.dev/icons); add one here and run `npm run build`. Brand marks are defined in scripts/brands.mjs.",
+  "lucide": [
+    "layout-dashboard", "plug", "wrench", "activity", "key-round", "lock-keyhole", "settings", "rotate-ccw-clock",
+    "menu", "x", "chevron-down", "chevron-up", "chevron-left", "chevron-right", "chevrons-up-down", "panel-left",
+    "arrow-right", "arrow-left", "arrow-up-right", "external-link", "ellipsis", "log-out", "user", "globe", "book-open",
+    "search", "funnel", "plus", "minus", "check", "copy", "trash", "pencil", "download", "upload", "refresh-cw",
+    "eye", "eye-off", "play", "send", "link",
+    "circle-check", "circle-exclamation-point", "triangle-exclamation-point", "info", "clock", "loader", "shield-check", "ban", "circle-question-mark",
+    "sun", "moon", "monitor",
+    "terminal", "code", "file-text", "mail", "inbox", "database", "server", "cloud", "bell", "map-pin", "route", "rocket"
+  ]
+}

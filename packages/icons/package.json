@@ -1,0 +1,24 @@
+{
+  "name": "@nyt87/icons",
+  "version": "0.0.0",
+  "description": "The nyt87 icon set: a curated selection of Lucide icons as an SVG sprite and an inline helper, shared by every product",
+  "type": "module",
+  "license": "ISC",
+  "repository": { "type": "git", "url": "git+https://github.com/NYT87/design-system.git", "directory": "packages/icons" },
+  "publishConfig": { "registry": "https://npm.pkg.github.com" },
+  "main": "./dist/icons.js",
+  "types": "./dist/icons.d.ts",
+  "exports": {
+    ".": { "types": "./dist/icons.d.ts", "import": "./dist/icons.js" },
+    "./sprite.svg": "./dist/sprite.svg",
+    "./icons.json": "./dist/icons.json"
+  },
+  "sideEffects": false,
+  "files": ["dist", "LICENSE-LUCIDE"],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "prepack": "node scripts/build.mjs",
+    "test": "node scripts/build.mjs && node --test \"test/*.test.mjs\""
+  },
+  "devDependencies": { "lucide-static": "1.79.0" }
+}
