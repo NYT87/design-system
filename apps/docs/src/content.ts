@@ -69,7 +69,7 @@ export const components: ComponentDoc[] = [
         { name: 'variant', values: 'ds-btn--primary | --secondary | --ghost | --danger', description: 'Visual weight.' },
         { name: 'size', values: 'ds-btn--sm | --md | --lg', description: '32px, 40px or 44px tall.' },
         { name: 'ds-btn--icon-only', values: '', description: 'A square button for one icon. Needs aria-label.' },
-        { name: 'span.ds-btn__icon', values: 'aria-hidden="true"', description: 'A decorative icon before the label.' },
+        { name: 'svg.ds-icon', values: 'aria-hidden="true"', description: 'A decorative icon before the label, from @nyt87/icons. An icon-only button still needs aria-label.' },
         { name: 'span.ds-spinner', values: 'inside a busy button', description: 'Shows progress while aria-busy.' },
       ]),
     },

@@ -7,10 +7,10 @@
     "apps/*"
   ],
   "scripts": {
-    "build:tokens": "npm run build -w @nyt87/tokens",
-    "test": "npm test -w @nyt87/tokens && npm test -w @nyt87/ui && npm test -w @nyt87/docs",
-    "dev": "npm run build:tokens && npm run dev -w @nyt87/docs",
-    "build": "npm run build:tokens && npm run build -w @nyt87/docs",
-    "typecheck": "npm run typecheck -w @nyt87/ui && npm run typecheck -w @nyt87/docs"
+    "test": "npm test -w @nyt87/tokens && npm test -w @nyt87/icons && npm test -w @nyt87/ui && npm test -w @nyt87/docs",
+    "dev": "npm run build:packages && npm run dev -w @nyt87/docs",
+    "build": "npm run build:packages && npm run build -w @nyt87/docs",
+    "typecheck": "npm run typecheck -w @nyt87/ui && npm run typecheck -w @nyt87/docs",
+    "build:packages": "npm run build -w @nyt87/tokens -w @nyt87/icons"
   }
 }

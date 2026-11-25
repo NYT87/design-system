@@ -110,3 +110,18 @@ h1, h2, h3 { font-family: var(--font-heading); font-weight: var(--weight-heading
 
 .js-note { margin: var(--space-3) 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); font-size: var(--text-sm); }
 .controls .ds-control { width: auto; }
+
+/* ---------- icons page ---------- */
+.icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(7.25rem, 1fr)); gap: var(--space-2); }
+.icon-tile { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: var(--space-2); min-height: 5.5rem; padding: var(--space-3) var(--space-2); font: inherit; font-size: var(--text-xs); color: var(--fg-muted); background: var(--bg-raised); border: 1px solid var(--border); border-radius: var(--radius-md); cursor: pointer; overflow: hidden; }
+.icon-tile > div { color: var(--fg); line-height: 0; }
+.icon-tile span { max-width: 100%; text-align: center; line-height: 1.25; overflow-wrap: anywhere; font-family: var(--font-mono); }
+.icon-tile:hover { border-color: var(--border-strong); color: var(--fg); }
+.icon-tile[aria-pressed='true'] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; color: var(--fg); }
+.icon-tile:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.icon-detail { margin-top: var(--space-5); display: grid; gap: var(--space-3); max-width: 44rem; }
+.suggest { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: var(--space-5); }
+.suggest__list { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-2); }
+.suggest__list li { display: grid; grid-template-columns: 1.5rem 1fr auto; align-items: center; gap: var(--space-3); font-size: var(--text-sm); }
+.suggest__icon { line-height: 0; color: var(--fg); }
+.suggest .h3 { margin-top: 0; }

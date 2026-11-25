@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { sprite } from '@nyt87/icons';
 import '@nyt87/ui'; // registers the behaviours (menu, tabs, modal, copy, drop, theme scope)
 import { components, groupOrder, type ComponentDoc } from './content';
 import { Colors, GettingStarted, Spacing, Typography } from './Foundations';
+import { Icons } from './Icons';
 import { Theming } from './Theming';
 import { CodeBlock, Html } from './ui';
 
@@ -11,6 +13,7 @@ const foundations = [
   { id: 'colors', name: 'Colour', view: Colors, summary: 'Semantic colour tokens, each with a light and a dark value.' },
   { id: 'typography', name: 'Typography', view: Typography, summary: 'Type scale and font families.' },
   { id: 'spacing', name: 'Spacing, radius, motion', view: Spacing, summary: 'Layout scale, corner radii and timing.' },
+  { id: 'icons', name: 'Icons', view: Icons, summary: 'One icon set for every product: Lucide, exposed from @nyt87/icons as a sprite and an inline helper.' },
   { id: 'theming', name: 'Theming', view: Theming, summary: 'Use your own brand colours: scoped to a section or for a whole product, checked for contrast.' },
 ];
 
@@ -140,6 +143,8 @@ export function App() {
   useEffect(() => { document.title = `${title} · nyt87 Design System`; }, [title]);
 
   return (
+    <>
+    <Html html={sprite} />
     <div className="shell">
       <a className="skip" href="#main">Skip to content</a>
       <header className="topbar">
@@ -206,5 +211,6 @@ export function App() {
         </main>
       </div>
     </div>
+    </>
   );
 }

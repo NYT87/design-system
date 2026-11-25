@@ -24,11 +24,11 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm run build:tokens
+      - run: npm run build:packages
       - run: npm test
       - run: npm run typecheck
       - run: npm run build
       - name: The packages must pack and install like a consumer's
         run: |
           npm run build -w @nyt87/ui
-          npm pack -w @nyt87/tokens -w @nyt87/ui --dry-run
+          npm pack -w @nyt87/tokens -w @nyt87/icons -w @nyt87/ui --dry-run

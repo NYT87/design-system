@@ -18,6 +18,11 @@ Applies to every product. A project's own `DESIGN.md` may only add rules, or ove
 - Focus: `outline: 2px solid var(--ring); outline-offset: 2px` on `:focus-visible`. Touch targets at least `--tap-min`.
 - Spacing from `--space-*`, corners from `--radius-*`, type from `--text-*`.
 
+## Icons
+- Every icon comes from `@nyt87/icons` (Lucide, stroke style). Do not draw one-off SVGs or paste icons from elsewhere: add the name to `packages/icons/icons.config.json` instead, so every product looks alike.
+- Use the same icon for the same idea everywhere (the "Which icon for what" table in the guide).
+- Icons take the text colour (`currentColor`) through a token, never a hex value. Next to a label they are `aria-hidden`; on their own they need `aria-label`. Never rely on an icon's colour or shape alone for status.
+
 ## Brand and accent
 The base identity is the nyt87 brand: warm-white (light) and graphite (dark) surfaces, Signal Orange for actions and emphasis, Console Teal for links, Space Grotesk for headings and buttons, Manrope for body text, JetBrains Mono for identifiers. Where the brand guideline's focus ring (`#f47f46`) is below 3:1 on the light background, `--ring` uses the darker orange in light mode.
 

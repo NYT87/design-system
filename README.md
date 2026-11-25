@@ -16,6 +16,7 @@
 | Package | What |
 |---|---|
 | `packages/tokens` (`@nyt87/tokens`) | Design tokens as CSS variables, with a WCAG contrast test. Source: `src/tokens.mjs`. |
+| `packages/icons` (`@nyt87/icons`) | The shared icon set: 67 curated [Lucide](https://lucide.dev) icons and two brand marks, as an SVG sprite and an inline helper (`icon('check')`). One place for every product's icons. |
 | `packages/ui` (`@nyt87/ui`) | Framework-free components: HTML and CSS (`ds-*` classes), plus tiny vanilla scripts (0.3 to 0.6 KB gzipped each) only for tabs, modal, header menu, copy button, file drop and theme scope. No React, no dependencies beyond the tokens. |
 | `apps/docs` | The public component guide: live examples, code, usage rules, a11y notes, props. |
 
@@ -44,7 +45,7 @@ Releases are automated with [Release Please](https://github.com/googleapis/relea
    | `feat(ui)!: ...` or a `BREAKING CHANGE:` footer | minor while 0.x, major from 1.0 |
    | `docs:`, `chore:`, `ci:`, `test:`, `refactor:` | no release |
 
-   Release Please looks at which folder a commit changed (`packages/tokens` or `packages/ui`), so the scope is for readers.
+   Release Please looks at which folder a commit changed (`packages/tokens`, `packages/icons` or `packages/ui`), so the scope is for readers.
 2. Release Please opens (and keeps updating) one **release PR** with the version bumps and changelogs. CI is run on it automatically.
 3. **Merge the release PR** when you want to ship. That creates the tags (`tokens-vX.Y.Z`, `ui-vX.Y.Z`) and GitHub releases, and the same workflow then publishes exactly the packages that were released to GitHub Packages.
 
@@ -64,7 +65,7 @@ GitHub Packages needs a token to install, even for public packages.
 ```
 2. Locally: `gh auth refresh -s read:packages`, then `export NODE_AUTH_TOKEN=$(gh auth token)` (put it in your shell profile).
 3. In GitHub Actions of the consuming repo: give the job `permissions: { contents: read, packages: read }` and set `NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}` on the install step. In the package's settings on GitHub (Package settings > Manage Actions access), add each consuming repository so its `GITHUB_TOKEN` may read it.
-4. `npm i @nyt87/tokens @nyt87/ui`, import the two stylesheets once, write the HTML from a component page, and import only the behaviours the page needs (`@nyt87/ui/menu`, `/tabs`, `/modal`, `/copy`, `/drop`, `/theme-scope`). See the docs site, Getting started.
+4. `npm i @nyt87/tokens @nyt87/ui` (and `@nyt87/icons` if you need icons), import the two stylesheets once, write the HTML from a component page, and import only the behaviours the page needs (`@nyt87/ui/menu`, `/tabs`, `/modal`, `/copy`, `/drop`, `/theme-scope`). See the docs site, Getting started.
 
 ## Adding a component
 1. Styles in `packages/ui/src/styles.css` (tokens only, `ds-` prefix). Use native elements first; add a behaviour in `packages/ui/src/behaviors/` only when the platform has no answer, as a small delegated-event module with its own entry in `tsup.config.ts` and `package.json` exports.

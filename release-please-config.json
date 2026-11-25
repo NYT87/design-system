@@ -4,9 +4,24 @@
   "include-v-in-tag": true,
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": true,
-  "plugins": ["node-workspace"],
+  "plugins": [
+    "node-workspace"
+  ],
   "packages": {
-    "packages/tokens": { "release-type": "node", "component": "tokens", "package-name": "@nyt87/tokens" },
-    "packages/ui": { "release-type": "node", "component": "ui", "package-name": "@nyt87/ui" }
+    "packages/tokens": {
+      "release-type": "node",
+      "component": "tokens",
+      "package-name": "@nyt87/tokens"
+    },
+    "packages/icons": {
+      "release-type": "node",
+      "component": "icons",
+      "package-name": "@nyt87/icons"
+    },
+    "packages/ui": {
+      "release-type": "node",
+      "component": "ui",
+      "package-name": "@nyt87/ui"
+    }
   }
 }

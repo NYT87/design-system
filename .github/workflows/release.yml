@@ -1,6 +1,6 @@
 name: Release
 
-# Release Please keeps ONE release PR open on main, listing the changes to @nyt87/tokens and @nyt87/ui since their last release.
+# Release Please keeps ONE release PR open on main, listing the changes to @nyt87/tokens, @nyt87/icons and @nyt87/ui since their last release.
 # Merging that PR creates the tags (tokens-vX.Y.Z, ui-vX.Y.Z) and GitHub releases, and this workflow then publishes exactly the
 # packages that were released to GitHub Packages. Nothing is published on any other push.
 #
@@ -19,8 +19,8 @@ on:
       packages:
         description: Which packages to publish
         type: choice
-        options: [both, tokens, ui]
-        default: both
+        options: [all, tokens, icons, ui]
+        default: all
 
 concurrency:
   group: release
@@ -37,6 +37,7 @@ jobs:
       pull-requests: write
     outputs:
       tokens_created: ${{ steps.rp.outputs['packages/tokens--release_created'] }}
+      icons_created: ${{ steps.rp.outputs['packages/icons--release_created'] }}
       ui_created: ${{ steps.rp.outputs['packages/ui--release_created'] }}
     steps:
       # Pinned to the commit SHA of v5.0.0 (same pin as the magomap repo).
@@ -50,7 +51,7 @@ jobs:
   # PRs opened with GITHUB_TOKEN do not trigger workflows, so CI is dispatched on the release PR's branch.
   verify-release-pr:
     needs: release-please
-    if: ${{ !cancelled() && needs.release-please.result == 'success' && needs.release-please.outputs.tokens_created != 'true' && needs.release-please.outputs.ui_created != 'true' }}
+    if: ${{ !cancelled() && needs.release-please.result == 'success' && needs.release-please.outputs.tokens_created != 'true' && needs.release-please.outputs.icons_created != 'true' && needs.release-please.outputs.ui_created != 'true' }}
     runs-on: ubuntu-latest
     permissions:
       actions: write
@@ -73,6 +74,7 @@ jobs:
       ${{ !cancelled() && needs.release-please.result != 'failure' && (
         github.event_name == 'workflow_dispatch' ||
         needs.release-please.outputs.tokens_created == 'true' ||
+        needs.release-please.outputs.icons_created == 'true' ||
         needs.release-please.outputs.ui_created == 'true') }}
     runs-on: ubuntu-latest
     permissions:
@@ -87,24 +89,26 @@ jobs:
           registry-url: https://npm.pkg.github.com
           scope: '@nyt87'
       - run: npm ci
-      - run: npm run build:tokens
+      - run: npm run build:packages
       - run: npm test
       - run: npm run typecheck
       - run: npm run build -w @nyt87/ui
-      - name: Publish what was released, tokens first (ui depends on it)
+      - name: Publish what was released, tokens and icons first (ui depends on tokens)
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           EVENT: ${{ github.event_name }}
           INPUT_PACKAGES: ${{ inputs.packages }}
           TOKENS_CREATED: ${{ needs.release-please.outputs.tokens_created }}
+          ICONS_CREATED: ${{ needs.release-please.outputs.icons_created }}
           UI_CREATED: ${{ needs.release-please.outputs.ui_created }}
         run: |
           set -euo pipefail
           want=""
           if [ "$EVENT" = workflow_dispatch ]; then
-            case "$INPUT_PACKAGES" in tokens) want="tokens" ;; ui) want="ui" ;; *) want="tokens ui" ;; esac
+            case "$INPUT_PACKAGES" in tokens) want="tokens" ;; icons) want="icons" ;; ui) want="ui" ;; *) want="tokens icons ui" ;; esac
           else
             [ "$TOKENS_CREATED" = true ] && want="tokens"
+            [ "$ICONS_CREATED" = true ] && want="$want icons"
             [ "$UI_CREATED" = true ] && want="$want ui"
           fi
           echo "Candidates: ${want:-none}"

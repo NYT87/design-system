@@ -128,6 +128,11 @@ export function GettingStarted() {
         <CodeBlock language="js" code={`import '@nyt87/ui/menu';   // header menu        0.45 KB gzipped\nimport '@nyt87/ui/tabs';   // tabs               0.5 KB\nimport '@nyt87/ui/modal';  // modal dialog       0.26 KB\nimport '@nyt87/ui/copy';   // code copy button   0.33 KB\nimport '@nyt87/ui/drop';   // file drop zone     0.44 KB\nimport '@nyt87/ui/theme-scope'; // <ds-theme-scope>  0.6 KB + 1.5 KB contrast checker\n// or everything at once: import '@nyt87/ui';   (about 3.3 KB gzipped, with the contrast checker)`} />
       </section>
       <section className="block">
+        <h2>5. Icons (optional)</h2>
+        <p className="muted">Every product takes its icons from one set, <code>@nyt87/icons</code> (Lucide). Install it, then use the sprite or the inline helper. See the <a href="#/icons">Icons page</a> for the gallery and the rules.</p>
+        <CodeBlock language="html" code={`<button class="ds-btn ds-btn--primary ds-btn--md" type="button">\n  <svg class="ds-icon" aria-hidden="true"><use href="/assets/sprite.svg#plus"/></svg>Add\n</button>`} />
+      </section>
+      <section className="block">
         <h2>Theme and accent</h2>
         <p className="muted">Dark mode follows the OS. Force it with <code>data-theme</code> on the root element; pick a product accent with <code>data-accent</code>.</p>
         <CodeBlock language="html" code={`<html data-theme="dark" data-accent="blue">`} />

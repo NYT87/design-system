@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { components } from '../src/content';
+import { names as iconNames } from '@nyt87/icons';
 
 // Structural accessibility checks on every example. They catch the mistakes plain HTML makes easy:
 // a broken id reference, an unnamed control, a missing alt. (Contrast is tested in @nyt87/tokens.)
@@ -56,6 +57,11 @@ describe.each(files)('example %s', (file) => {
   it('gives images alt text and hides decorative svg', () => {
     expect([...root.querySelectorAll('img:not([alt])')].length).toBe(0);
     expect([...root.querySelectorAll('svg')].filter((v) => !v.closest('[aria-hidden="true"]') && !v.getAttribute('role')).length).toBe(0);
+  });
+
+  it('only references icons that exist in @nyt87/icons', () => {
+    const used = [...root.querySelectorAll('use')].map((u) => (u.getAttribute('href') ?? '').split('#')[1]);
+    expect(used.filter((n) => !iconNames.includes(n as never))).toEqual([]);
   });
 
   it('uses type="button" on buttons outside a form', () => {
