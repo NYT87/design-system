@@ -1,11 +1,11 @@
-import { useEffect, useState, type ComponentType } from 'react';
-import { Badge, Button, CodeBlock, Segmented, Select } from '@nyt87/ui';
+import { useEffect, useState } from 'react';
+import '@nyt87/ui'; // registers the behaviours (menu, tabs, modal, copy, drop, theme scope)
 import { components, groupOrder, type ComponentDoc } from './content';
 import { Colors, GettingStarted, Spacing, Typography } from './Foundations';
 import { Theming } from './Theming';
+import { CodeBlock, Html } from './ui';
 
-const live = import.meta.glob<{ default: ComponentType }>('./examples/*.tsx', { eager: true });
-const raw = import.meta.glob<string>('./examples/*.tsx', { eager: true, query: '?raw', import: 'default' });
+const raw = import.meta.glob<string>('./examples/*.html', { eager: true, query: '?raw', import: 'default' });
 
 const foundations = [
   { id: 'colors', name: 'Colour', view: Colors, summary: 'Semantic colour tokens, each with a light and a dark value.' },
@@ -32,17 +32,17 @@ function useRoute() {
   return route;
 }
 
-function PropsTable({ title, rows }: { title: string; rows: ComponentDoc['props'][string] }) {
+function ApiTable({ title, rows }: { title: string; rows: ComponentDoc['api'][string] }) {
   return (
-    <div className="table-wrap" role="region" aria-label={`${title} props`} tabIndex={0}>
+    <div className="table-wrap" role="region" aria-label={`${title} classes and attributes`} tabIndex={0}>
       <table className="props">
         <caption>{title}</caption>
-        <thead><tr><th scope="col">Prop</th><th scope="col">Type</th><th scope="col">Default</th><th scope="col">Description</th></tr></thead>
+        <thead><tr><th scope="col">Class or attribute</th><th scope="col">Values</th><th scope="col">Default</th><th scope="col">Description</th></tr></thead>
         <tbody>
           {rows.map((r) => (
             <tr key={r.name}>
               <th scope="row"><code>{r.name}</code></th>
-              <td><code>{r.type}</code></td>
+              <td>{r.values ? <code>{r.values}</code> : '—'}</td>
               <td>{r.default ? <code>{r.default}</code> : '—'}</td>
               <td>{r.description}</td>
             </tr>
@@ -54,22 +54,26 @@ function PropsTable({ title, rows }: { title: string; rows: ComponentDoc['props'
 }
 
 function ComponentPage({ doc }: { doc: ComponentDoc }) {
-  const key = `./examples/${doc.example}.tsx`;
-  const Example = live[key].default;
+  const html = raw[`./examples/${doc.example}.html`];
   return (
     <>
       <header className="page-head">
         <p className="eyebrow">{doc.group}</p>
         <h1>{doc.name}</h1>
         <p className="lede">{doc.summary}</p>
+        <p className="js-note">
+          {doc.js
+            ? <><span className="ds-badge ds-badge--warn"><span className="ds-badge__dot" aria-hidden="true" />Needs JavaScript</span> <code>{doc.js.import}</code> <span className="muted">({doc.js.size} gzipped)</span></>
+            : <span className="ds-badge ds-badge--ok"><span className="ds-badge__dot" aria-hidden="true" />HTML and CSS only: no JavaScript</span>}
+        </p>
       </header>
 
       <section className="block">
         <h2>Example</h2>
-        <div className="preview"><Example /></div>
+        <Html className="preview" html={html} />
         <details className="source">
-          <summary>View code</summary>
-          <CodeBlock language="tsx" code={raw[key].trim()} />
+          <summary>View HTML</summary>
+          <CodeBlock language="html" code={html.trim()} />
         </details>
       </section>
 
@@ -90,8 +94,8 @@ function ComponentPage({ doc }: { doc: ComponentDoc }) {
       </section>
 
       <section className="block">
-        <h2>Props</h2>
-        {Object.entries(doc.props).map(([t, rows]) => <PropsTable key={t} title={t} rows={rows} />)}
+        <h2>Classes and attributes</h2>
+        {Object.entries(doc.api).map(([t, rows]) => <ApiTable key={t} title={t} rows={rows} />)}
       </section>
     </>
   );
@@ -103,7 +107,7 @@ function Home() {
       <header className="page-head">
         <p className="eyebrow">nyt87</p>
         <h1>Design System</h1>
-        <p className="lede">Tokens and React components shared by every nyt87 product. Pick a component on the left to see it live, with its code, usage rules, accessibility notes and props.</p>
+        <p className="lede">Design tokens and framework-free components shared by every nyt87 product: plain HTML and CSS, with a few tiny scripts only where behaviour is needed. Pick a component on the left to see it live, with its HTML, usage rules, accessibility notes and API.</p>
         <div className="row">
           <a className="ds-btn ds-btn--primary ds-btn--md" href="#/button">Browse components</a>
           <a className="ds-btn ds-btn--secondary ds-btn--md" href="#/colors">Foundations</a>
@@ -139,7 +143,7 @@ export function App() {
     <div className="shell">
       <a className="skip" href="#main">Skip to content</a>
       <header className="topbar">
-        <Button variant="ghost" size="sm" className="menu-btn" aria-expanded={menu} aria-controls="nav" onClick={() => setMenu(!menu)}>Menu</Button>
+        <button type="button" className="ds-btn ds-btn--ghost ds-btn--sm menu-btn" aria-expanded={menu} aria-controls="nav" onClick={() => setMenu(!menu)}>Menu</button>
         <a className="brand" href="#/" aria-label="nyt87 design system home">
           <img className="brand__icon" src="./brand/logo-icon.png" alt="" width="28" height="28" />
           <img className="brand__text logo-light" src="./brand/logo-text.png" alt="" height="22" />
@@ -147,12 +151,19 @@ export function App() {
           <span className="muted">design system</span>
         </a>
         <div className="controls">
-          <Select label={<span className="ds-sr-only">Accent</span>} value={accent} onChange={(e) => setAccent(e.target.value)}>
+          <select className="ds-control ds-control--select" aria-label="Accent" value={accent} onChange={(e) => setAccent(e.target.value)}>
             <option value="company">nyt87 orange</option>
             <option value="green">Green accent</option>
             <option value="blue">Blue accent</option>
-          </Select>
-          <Segmented<Theme> label="Theme" size="sm" value={theme} onChange={setTheme} options={[{ value: 'system', label: 'Auto' }, { value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }]} />
+          </select>
+          <div role="radiogroup" aria-label="Theme" className="ds-seg ds-seg--sm">
+            {(['system', 'light', 'dark'] as Theme[]).map((t) => (
+              <label key={t} className="ds-seg__item">
+                <input type="radio" name="theme" value={t} checked={theme === t} onChange={() => setTheme(t)} />
+                <span>{t === 'system' ? 'Auto' : t === 'light' ? 'Light' : 'Dark'}</span>
+              </label>
+            ))}
+          </div>
           <a
             className="ds-btn ds-btn--ghost ds-btn--icon-only ds-btn--md gh-link"
             href="https://github.com/NYT87/design-system"
@@ -179,7 +190,7 @@ export function App() {
           </div>
         ))}
         <footer className="sidebar__foot">
-          <Badge>v0.1.0</Badge>
+          <span className="ds-badge"><span className="ds-badge__dot" aria-hidden="true" />v0.2.0</span>
           <p>&copy; {new Date().getFullYear()} nyt87</p>
           <p>Made with <span role="img" aria-label="love" className="heart">&#10084;</span> by{' '}
             <a href="https://nyt87.github.io/" target="_blank" rel="noopener noreferrer">nyt87</a></p>
@@ -188,11 +199,11 @@ export function App() {
 
       <div className="content">
         <main id="main" className="main" tabIndex={-1}>
-        {route === 'start' ? <Home />
-          : comp ? <ComponentPage doc={comp} />
-          : found ? (<><header className="page-head"><p className="eyebrow">Foundations</p><h1>{found.name}</h1><p className="lede">{found.summary}</p></header><found.view /></>)
-          : (<header className="page-head"><h1>Page not found</h1><p className="lede"><a href="#/">Back to the start</a></p></header>)}
-      </main>
+          {route === 'start' ? <Home />
+            : comp ? <ComponentPage doc={comp} />
+            : found ? (<><header className="page-head"><p className="eyebrow">Foundations</p><h1>{found.name}</h1><p className="lede">{found.summary}</p></header><found.view /></>)
+            : (<header className="page-head"><h1>Page not found</h1><p className="lede"><a href="#/">Back to the start</a></p></header>)}
+        </main>
       </div>
     </div>
   );

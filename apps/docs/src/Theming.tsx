@@ -1,22 +1,28 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Alert, Badge, Button, Card, CodeBlock, Field, Input, Tabs, ThemeScope, checkTheme, contrast, defineTheme, type ColorOverrides } from '@nyt87/ui';
+import { useEffect, useId, useMemo, useState } from 'react';
+import { checkTheme, contrast, defineTheme, type ColorOverrides } from '@nyt87/ui';
+import { CodeBlock, Html } from './ui';
 
 const DARK_TEXT = '#0e1216';
 const bestOn = (accent: string) => (contrast('#ffffff', accent)! >= contrast(DARK_TEXT, accent)! ? '#ffffff' : DARK_TEXT);
+const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
 
 interface Mode { accent: string; ink: string; on: string; autoOn: boolean }
 
 const toTokens = (m: Mode): ColorOverrides => ({ accent: m.accent, 'on-accent': m.autoOn ? bestOn(m.accent) : m.on, 'accent-ink': m.ink, ring: m.ink });
 
 function ColorField({ label, value, onChange, hint }: { label: string; value: string; onChange: (v: string) => void; hint?: string }) {
+  const id = useId();
   return (
-    <Field label={label} hint={hint ?? value}>
-      {(c) => <input type="color" className="color-input" value={value} onChange={(e) => onChange(e.target.value)} {...c} />}
-    </Field>
+    <div className="ds-field">
+      <label className="ds-field__label" htmlFor={id}>{label}</label>
+      <input id={id} type="color" className="color-input" value={value} onChange={(e) => onChange(e.target.value)} aria-describedby={`${id}-hint`} />
+      <p className="ds-field__hint" id={`${id}-hint`}>{hint ?? value}</p>
+    </div>
   );
 }
 
 export function Theming() {
+  const nameId = useId();
   const [name, setName] = useState('acme');
   const [light, setLight] = useState<Mode>({ accent: '#0a5ad4', ink: '#0a5ad4', on: '#ffffff', autoOn: true });
   const [dark, setDark] = useState<Mode>({ accent: '#5aa2ff', ink: '#5aa2ff', on: '#08111c', autoOn: true });
@@ -47,11 +53,29 @@ export function Theming() {
       <ColorField label="Accent (button fill)" value={m.accent} onChange={(accent) => set({ ...m, accent })} />
       <ColorField label="Accent text (links, selected tab, focus ring)" value={m.ink} onChange={(ink) => set({ ...m, ink })} />
       <ColorField label="Text on accent" value={m.autoOn ? bestOn(m.accent) : m.on} onChange={(on) => set({ ...m, on, autoOn: false })} hint={m.autoOn ? `${bestOn(m.accent)} (picked automatically)` : m.on} />
-      {!m.autoOn ? <Button size="sm" variant="ghost" onClick={() => set({ ...m, autoOn: true })}>Pick text colour automatically</Button> : null}
+      {!m.autoOn ? <button type="button" className="ds-btn ds-btn--ghost ds-btn--sm" onClick={() => set({ ...m, autoOn: true })}>Pick text colour automatically</button> : null}
     </fieldset>
   );
 
-  const jsx = `<ThemeScope\n  light={${JSON.stringify(theme.light)}}\n  dark={${JSON.stringify(theme.dark)}}\n>\n  {/* your page or section */}\n</ThemeScope>`;
+  const attrs = `light='${JSON.stringify(theme.light)}'\n  dark='${JSON.stringify(theme.dark)}'`;
+  const element = `<ds-theme-scope\n  ${attrs}>\n  <!-- your page or section -->\n</ds-theme-scope>`;
+  const previewHtml = `<ds-theme-scope light='${esc(JSON.stringify(theme.light))}' dark='${esc(JSON.stringify(theme.dark))}'>
+    <section class="ds-card">
+      <header class="ds-card__head"><h3 class="ds-card__title">Preview</h3><span class="ds-badge ds-badge--accent"><span class="ds-badge__dot" aria-hidden="true"></span>${esc(safeName)}</span></header>
+      <div class="ds-card__body stack">
+        <div class="row"><button class="ds-btn ds-btn--primary ds-btn--md" type="button">Primary</button><button class="ds-btn ds-btn--secondary ds-btn--md" type="button">Secondary</button><button class="ds-btn ds-btn--ghost ds-btn--md" type="button">Ghost</button></div>
+        <div class="ds-tabs">
+          <div role="tablist" aria-label="Preview tabs" class="ds-tabs__list">
+            <button role="tab" type="button" class="ds-tabs__tab" id="pv-a" aria-controls="pv-pa" aria-selected="true">Overview</button>
+            <button role="tab" type="button" class="ds-tabs__tab" id="pv-b" aria-controls="pv-pb" aria-selected="false" tabindex="-1">Activity</button>
+          </div>
+          <div role="tabpanel" id="pv-pa" aria-labelledby="pv-a" class="ds-tabs__panel" tabindex="0">The selected tab and the focus ring use the accent text colour.</div>
+          <div role="tabpanel" id="pv-pb" aria-labelledby="pv-b" class="ds-tabs__panel" tabindex="0" hidden>Second tab.</div>
+        </div>
+        <p>Status colours never change, and links keep the brand link colour.</p>
+      </div>
+    </section>
+  </ds-theme-scope>`;
 
   return (
     <>
@@ -62,8 +86,8 @@ export function Theming() {
           from smallest to largest:
         </p>
         <ol>
-          <li><strong>A section of a page:</strong> wrap it in <code>ThemeScope</code> (below).</li>
-          <li><strong>A whole product:</strong> add the CSS generated by <code>defineTheme</code> to the app and set <code>data-accent="your-name"</code> on <code>&lt;html&gt;</code>. Built-in presets <code>green</code> and <code>blue</code> work the same way.</li>
+          <li><strong>A section of a page:</strong> wrap it in <code>&lt;ds-theme-scope&gt;</code> (below).</li>
+          <li><strong>A whole product, with no script:</strong> add the CSS generated by <code>defineTheme</code> to the app and set <code>data-accent="your-name"</code> on <code>&lt;html&gt;</code>. Built-in presets <code>green</code> and <code>blue</code> work the same way.</li>
           <li><strong>One-off:</strong> override a variable in your own CSS. You lose the contrast check, so prefer the two above.</li>
         </ol>
         <p className="muted">Colours are checked against WCAG: text 4.5:1, focus ring, input borders and the accent fill 3:1. Change any token you like; the checker names the pair that fails.</p>
@@ -73,47 +97,51 @@ export function Theming() {
         <h2>Theme builder</h2>
         <div className="builder">
           <div className="builder__form">
-            <Input label="Theme name" value={name} onChange={(e) => setName(e.target.value)} hint={`Used as data-accent="${safeName}"`} />
+            <div className="ds-field">
+              <label className="ds-field__label" htmlFor={nameId}>Theme name</label>
+              <input id={nameId} className="ds-control" value={name} onChange={(e) => setName(e.target.value)} aria-describedby={`${nameId}-hint`} />
+              <p className="ds-field__hint" id={`${nameId}-hint`}>Used as data-accent="{safeName}"</p>
+            </div>
             <div className="modes">
               {modeFields('Light mode', light, setLight)}
               {modeFields('Dark mode', dark, setDark)}
             </div>
             <div aria-live="polite">
               {failures.length === 0 ? (
-                <Alert tone="ok" title="Passes contrast in light and dark">Text on the accent, accent text, focus ring and fill all meet WCAG.</Alert>
+                <div className="ds-alert ds-alert--ok" role="status">
+                  <div className="ds-alert__main"><p className="ds-alert__title">Passes contrast in light and dark</p><div className="ds-alert__body">Text on the accent, accent text, focus ring and fill all meet WCAG.</div></div>
+                </div>
               ) : (
-                <Alert tone="danger" title={`${failures.length} contrast problem${failures.length > 1 ? 's' : ''}`}>
-                  <ul className="fails">
-                    {failures.map((f, i) => (
-                      <li key={i}><strong>{f.mode}:</strong> <code>{f.fg}</code> {f.fgColor} on <code>{f.bg}</code> {f.bgColor} is {f.ratio}:1, needs {f.min}:1</li>
-                    ))}
-                  </ul>
-                </Alert>
+                <div className="ds-alert ds-alert--danger" role="alert">
+                  <div className="ds-alert__main">
+                    <p className="ds-alert__title">{failures.length} contrast problem{failures.length > 1 ? 's' : ''}</p>
+                    <div className="ds-alert__body">
+                      <ul className="fails">
+                        {failures.map((f, i) => (
+                          <li key={i}><strong>{f.mode}:</strong> <code>{f.fg}</code> {f.fgColor} on <code>{f.bg}</code> {f.bgColor} is {f.ratio}:1, needs {f.min}:1</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
-            <Button variant={applied ? 'secondary' : 'primary'} onClick={() => setApplied(!applied)} aria-pressed={applied}>
+            <button type="button" className={`ds-btn ds-btn--md ${applied ? 'ds-btn--secondary' : 'ds-btn--primary'}`} onClick={() => setApplied(!applied)} aria-pressed={applied}>
               {applied ? 'Stop trying on this site' : 'Try it on this whole site'}
-            </Button>
+            </button>
           </div>
 
-          <ThemeScope className="builder__preview" light={theme.light} dark={theme.dark} onContrastFailures={() => {}}>
-            <Card title="Preview" actions={<Badge tone="accent">{safeName}</Badge>}>
-              <div className="stack">
-                <div className="row"><Button>Primary</Button><Button variant="secondary">Secondary</Button><Button variant="ghost">Ghost</Button></div>
-                <Tabs label="Preview tabs" tabs={[{ id: 'a', label: 'Overview', content: 'The selected tab and the focus ring use the accent text colour.' }, { id: 'b', label: 'Activity', content: 'Second tab.' }]} />
-                <p><a href="#/theming">A link</a> keeps the brand link colour. Status colours never change.</p>
-              </div>
-            </Card>
-          </ThemeScope>
+          <Html className="builder__preview" html={previewHtml} />
         </div>
       </section>
 
       <section className="block">
         <h2>Use it</h2>
-        <h3 className="h3">In a React section</h3>
-        <CodeBlock language="tsx" code={jsx} />
-        <h3 className="h3">For a whole product</h3>
-        <p className="muted small">Add this CSS to the app once (it ships generated, no runtime), then set the attribute.</p>
+        <h3 className="h3">For a section of a page</h3>
+        <CodeBlock language="html" code={element} />
+        <p className="muted small">Load it with <code>import '@nyt87/ui/theme-scope'</code> (0.6 KB plus the 1.5 KB contrast checker). It warns in the console if the colours fail contrast.</p>
+        <h3 className="h3">For a whole product (no script)</h3>
+        <p className="muted small">Add this CSS to the app once, then set the attribute.</p>
         <CodeBlock language="css" code={css} />
         <CodeBlock language="html" code={`<html data-accent="${safeName}">`} />
         <h3 className="h3">Generate it in a build script</h3>

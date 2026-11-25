@@ -3,7 +3,7 @@
 | Package | What |
 |---|---|
 | `packages/tokens` (`@nyt87/tokens`) | Design tokens as CSS variables, with a WCAG contrast test. Source: `src/tokens.mjs`. |
-| `packages/ui` (`@nyt87/ui`) | 16 accessible React components styled only with tokens. |
+| `packages/ui` (`@nyt87/ui`) | Framework-free components: HTML and CSS (`ds-*` classes), plus tiny vanilla scripts (0.3 to 0.6 KB gzipped each) only for tabs, modal, header menu, copy button, file drop and theme scope. No React, no dependencies beyond the tokens. |
 | `apps/docs` | The public component guide: live examples, code, usage rules, a11y notes, props. |
 
 Language and rules: [DESIGN.md](DESIGN.md).
@@ -51,12 +51,12 @@ GitHub Packages needs a token to install, even for public packages.
 ```
 2. Locally: `gh auth refresh -s read:packages`, then `export NODE_AUTH_TOKEN=$(gh auth token)` (put it in your shell profile).
 3. In GitHub Actions of the consuming repo: give the job `permissions: { contents: read, packages: read }` and set `NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}` on the install step. In the package's settings on GitHub (Package settings > Manage Actions access), add each consuming repository so its `GITHUB_TOKEN` may read it.
-4. `npm i @nyt87/tokens @nyt87/ui react react-dom`, then import the two stylesheets once (see the docs site, Getting started).
+4. `npm i @nyt87/tokens @nyt87/ui`, import the two stylesheets once, write the HTML from a component page, and import only the behaviours the page needs (`@nyt87/ui/menu`, `/tabs`, `/modal`, `/copy`, `/drop`, `/theme-scope`). See the docs site, Getting started.
 
 ## Adding a component
-1. `packages/ui/src/components/Name.tsx`, styles in `styles.css` (tokens only), export in `index.ts`.
-2. A test in `packages/ui/test`.
-3. `apps/docs/src/examples/Name.tsx` (shown live and as its own code snippet) and an entry in `apps/docs/src/content.ts`.
+1. Styles in `packages/ui/src/styles.css` (tokens only, `ds-` prefix). Use native elements first; add a behaviour in `packages/ui/src/behaviors/` only when the platform has no answer, as a small delegated-event module with its own entry in `tsup.config.ts` and `package.json` exports.
+2. A test in `packages/ui/test` for any behaviour.
+3. `apps/docs/src/examples/name.html` (shown live and as its own code) and an entry in `apps/docs/src/content.ts`. The docs tests check every example for unique ids, resolving references, named controls and alt text.
 
 ## Adopting in a product
 See `packages/tokens/README.md` for the variable rename map. Replace local duplicates (modals, empty states, error panels, stat grids) with `@nyt87/ui` one at a time.

@@ -1,0 +1,26 @@
+<div class="stack" style="max-width: 24rem">
+  <div class="ds-field">
+    <label class="ds-field__label" for="f-name">Project name</label>
+    <input class="ds-control" id="f-name" placeholder="my-project" aria-describedby="f-name-hint">
+    <p class="ds-field__hint" id="f-name-hint">Lowercase, no spaces.</p>
+  </div>
+  <div class="ds-field">
+    <label class="ds-field__label" for="f-email">Email <span class="ds-field__req" aria-hidden="true">*</span></label>
+    <input class="ds-control" id="f-email" type="email" required value="not-an-email" aria-invalid="true" aria-describedby="f-email-error">
+    <p class="ds-field__error" id="f-email-error" role="alert">Enter a valid email address.</p>
+  </div>
+  <div class="ds-field">
+    <label class="ds-field__label" for="f-region">Region</label>
+    <select class="ds-control ds-control--select" id="f-region">
+      <option value="eu">Europe</option><option value="us">United States</option><option value="kr">Korea</option>
+    </select>
+  </div>
+  <div class="ds-field">
+    <label class="ds-field__label" for="f-notes">Notes</label>
+    <textarea class="ds-control ds-control--area" id="f-notes" rows="4" placeholder="Anything we should know?"></textarea>
+  </div>
+  <div class="ds-field">
+    <label class="ds-field__label" for="f-off">Disabled</label>
+    <input class="ds-control" id="f-off" disabled value="Read only">
+  </div>
+</div>

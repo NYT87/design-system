@@ -1,5 +1,5 @@
 import tokens from '@nyt87/tokens/tokens.json';
-import { CodeBlock } from '@nyt87/ui';
+import { CodeBlock } from './ui';
 
 type Theme = Record<string, string>;
 const light = tokens.color.light as Theme;
@@ -109,15 +109,23 @@ export function GettingStarted() {
         <p className="muted">The packages live in GitHub Packages, which needs a token to install. Add this <code>.npmrc</code> to your project:</p>
         <CodeBlock language="ini" code={'@nyt87:registry=https://npm.pkg.github.com\n//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}'} />
         <p className="muted">Set <code>NODE_AUTH_TOKEN</code> to a GitHub token with <code>read:packages</code> (locally: <code>gh auth refresh -s read:packages</code>, then <code>export NODE_AUTH_TOKEN=$(gh auth token)</code>; in Actions: <code>secrets.GITHUB_TOKEN</code>). Then:</p>
-        <CodeBlock language="bash" code={'npm i @nyt87/tokens @nyt87/ui react react-dom'} />
+        <CodeBlock language="bash" code={'npm i @nyt87/tokens @nyt87/ui'} />
       </section>
       <section className="block">
-        <h2>2. Import the styles once</h2>
-        <CodeBlock language="ts" code={`import '@nyt87/tokens/tokens.css';\nimport '@nyt87/ui/styles.css';`} />
+        <h2>2. Load the styles once</h2>
+        <p className="muted">Plain CSS: it works in any framework, or none.</p>
+        <CodeBlock language="js" code={`import '@nyt87/tokens/tokens.css';\nimport '@nyt87/ui/styles.css';`} />
+        <p className="muted">Or in HTML: <code>&lt;link rel="stylesheet" href="…/tokens.css"&gt;</code> and the same for <code>styles.css</code>.</p>
       </section>
       <section className="block">
-        <h2>3. Use components</h2>
-        <CodeBlock language="tsx" code={`import { Button, Card } from '@nyt87/ui';\n\n<Card title="Hello">\n  <Button>Save</Button>\n</Card>`} />
+        <h2>3. Write HTML</h2>
+        <CodeBlock language="html" code={`<section class="ds-card">\n  <header class="ds-card__head"><h3 class="ds-card__title">Hello</h3></header>\n  <div class="ds-card__body">\n    <button class="ds-btn ds-btn--primary ds-btn--md" type="button">Save</button>\n  </div>\n</section>`} />
+        <p className="muted">Copy the HTML from any component page. Most components need nothing else.</p>
+      </section>
+      <section className="block">
+        <h2>4. Add JavaScript only where a component needs it</h2>
+        <p className="muted">Each component page says whether it needs a script. Import only those, so a page ships only what it uses. Each module is a few hundred bytes, works by event delegation, and needs no framework, so it also works with markup rendered by React, Vue, Svelte or Astro.</p>
+        <CodeBlock language="js" code={`import '@nyt87/ui/menu';   // header menu        0.45 KB gzipped\nimport '@nyt87/ui/tabs';   // tabs               0.5 KB\nimport '@nyt87/ui/modal';  // modal dialog       0.26 KB\nimport '@nyt87/ui/copy';   // code copy button   0.33 KB\nimport '@nyt87/ui/drop';   // file drop zone     0.44 KB\nimport '@nyt87/ui/theme-scope'; // <ds-theme-scope>  0.6 KB + 1.5 KB contrast checker\n// or everything at once: import '@nyt87/ui';   (about 3.3 KB gzipped, with the contrast checker)`} />
       </section>
       <section className="block">
         <h2>Theme and accent</h2>
@@ -131,6 +139,7 @@ export function GettingStarted() {
           <li><strong>One accent per product.</strong> Status colours are for status only.</li>
           <li><strong>Both themes are first-class.</strong> Every colour has a light and dark value.</li>
           <li><strong>Accessible by construction.</strong> Contrast for every text pair is tested; keyboard and screen-reader behaviour is built in, not optional.</li>
+          <li><strong>As little JavaScript as possible.</strong> Native elements first; a script only where the platform has no answer.</li>
           <li><strong>Identifiers are monospace and never translated.</strong></li>
         </ol>
       </section>

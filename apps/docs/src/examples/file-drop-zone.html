@@ -1,0 +1,8 @@
+<div class="ds-drop">
+  <p class="ds-drop__text" id="drop-text">Drop a GPX, TCX or FIT file here</p>
+  <input type="file" hidden accept=".gpx,.tcx,.fit">
+  <button class="ds-btn ds-btn--secondary ds-btn--md" type="button" data-ds-drop-pick aria-describedby="drop-text">Choose file</button>
+</div>
+
+<!-- The files arrive as an event on the zone:
+     zone.addEventListener('ds-files', (e) => console.log(e.detail.files)); -->

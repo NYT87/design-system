@@ -7,7 +7,8 @@ Applies to every product. A project's own `DESIGN.md` may only add rules, or ove
 2. **One accent per product.** Accent means "primary action / connected / go". Status colours (`ok`, `warn`, `danger`) are never used as decoration.
 3. **Both themes are first-class.** Every colour has a light and a dark value. Dark follows the OS; `data-theme` forces one.
 4. **Accessible by construction.** `npm test` checks WCAG contrast for every text/background pair in all theme + accent combinations. A token change that fails the test does not ship.
-5. **Identifiers are monospace and never translated** (`--font-mono`).
+5. **As little JavaScript as possible.** Components are HTML and CSS with native elements; a script only where the platform has no answer, each a few hundred bytes and framework-free.
+6. **Identifiers are monospace and never translated** (`--font-mono`).
 
 ## Using tokens
 - Reference tokens only (`var(--bg-raised)`), never hex values, in app CSS.
@@ -23,7 +24,7 @@ The base identity is the nyt87 brand: warm-white (light) and graphite (dark) sur
 A product may change the accent family only (`accent`, `on-accent`, `accent-ink`, `ring`): set `<html data-accent="green">` (built-in presets: `green`, `blue`) or define its own with `defineTheme` (see the Theming page). Surfaces, text, links and status colours stay the same so products still read as one family.
 
 ## Custom themes
-- **A section:** `<ThemeScope light={{ accent: '#0a5ad4' }} dark={{ ... }}>`.
+- **A section:** `<ds-theme-scope light='{"accent":"#0a5ad4"}' dark='{...}'>` (needs `@nyt87/ui/theme-scope`).
 - **A product:** generate CSS with `defineTheme({ name, light, dark })` and set `data-accent="name"`. Fail the build if `failures` is not empty.
 - Both validate names and WCAG contrast with the same rules as the built-in themes. Never override tokens with hex values in component CSS.
 

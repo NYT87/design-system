@@ -1,0 +1,21 @@
+<!-- Only list the tokens you change. Components inside pick them up in light and dark mode. -->
+<ds-theme-scope class="stack"
+  light='{"accent":"#0a5ad4","accent-ink":"#0a5ad4","ring":"#0a5ad4"}'
+  dark='{"accent":"#5aa2ff","on-accent":"#08111c","accent-ink":"#5aa2ff","ring":"#5aa2ff"}'>
+  <div class="row">
+    <button class="ds-btn ds-btn--primary ds-btn--md" type="button">Primary</button>
+    <button class="ds-btn ds-btn--secondary ds-btn--md" type="button">Secondary</button>
+    <span class="ds-badge ds-badge--accent"><span class="ds-badge__dot" aria-hidden="true"></span>Beta</span>
+  </div>
+  <div class="ds-alert ds-alert--info" role="status">
+    <div class="ds-alert__main"><p class="ds-alert__title">Your own brand colours</p><div class="ds-alert__body">Everything here uses a blue accent defined in this element only.</div></div>
+  </div>
+  <div class="ds-tabs">
+    <div role="tablist" aria-label="Demo" class="ds-tabs__list">
+      <button role="tab" type="button" class="ds-tabs__tab" id="ts-a" aria-controls="ts-pa" aria-selected="true">Overview</button>
+      <button role="tab" type="button" class="ds-tabs__tab" id="ts-b" aria-controls="ts-pb" aria-selected="false" tabindex="-1">Details</button>
+    </div>
+    <div role="tabpanel" id="ts-pa" aria-labelledby="ts-a" class="ds-tabs__panel" tabindex="0">Selected tab uses the accent.</div>
+    <div role="tabpanel" id="ts-pb" aria-labelledby="ts-b" class="ds-tabs__panel" tabindex="0" hidden>Second tab.</div>
+  </div>
+</ds-theme-scope>

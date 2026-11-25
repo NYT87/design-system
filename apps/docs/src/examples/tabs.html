@@ -1,0 +1,10 @@
+<div class="ds-tabs">
+  <div role="tablist" aria-label="Activity sections" class="ds-tabs__list">
+    <button role="tab" type="button" class="ds-tabs__tab" id="tab-summary" aria-controls="panel-summary" aria-selected="true">Summary</button>
+    <button role="tab" type="button" class="ds-tabs__tab" id="tab-laps" aria-controls="panel-laps" aria-selected="false" tabindex="-1">Laps</button>
+    <button role="tab" type="button" class="ds-tabs__tab" id="tab-sensors" aria-controls="panel-sensors" aria-selected="false" tabindex="-1">Sensors</button>
+  </div>
+  <div role="tabpanel" id="panel-summary" aria-labelledby="tab-summary" class="ds-tabs__panel" tabindex="0">Distance, time and average speed.</div>
+  <div role="tabpanel" id="panel-laps" aria-labelledby="tab-laps" class="ds-tabs__panel" tabindex="0" hidden>One row per lap.</div>
+  <div role="tabpanel" id="panel-sensors" aria-labelledby="tab-sensors" class="ds-tabs__panel" tabindex="0" hidden>Heart rate, cadence and power streams.</div>
+</div>

@@ -1,279 +1,317 @@
-export interface Prop { name: string; type: string; default?: string; description: string }
+export interface ApiRow { name: string; values: string; default?: string; description: string }
 export interface ComponentDoc {
   id: string;
   name: string;
   group: 'Actions' | 'Forms' | 'Display' | 'Feedback' | 'Navigation' | 'Overlays' | 'Layout' | 'Theming';
   summary: string;
+  /** What JavaScript the component needs. "none" means HTML and CSS only. */
+  js: { import: string; size: string } | null;
   use: string[];
   avoid: string[];
   a11y: string[];
-  props: Record<string, Prop[]>;
-  example: string; // file name in ./examples
+  /** Classes, attributes and events, grouped by element. */
+  api: Record<string, ApiRow[]>;
+  /** File name in ./examples, without the extension. */
+  example: string;
 }
+
+const modifiers = (rows: ApiRow[]) => rows;
 
 export const components: ComponentDoc[] = [
   {
-    id: 'button', name: 'Button', group: 'Actions', example: 'Button',
-    summary: 'Triggers an action. Use IconButton when there is no visible text.',
-    use: ['One primary button per view or dialog.', 'Verbs for labels: "Save", "Import file", not "OK".', 'danger only for destructive, irreversible actions.'],
-    avoid: ['Using a Button to navigate: use a link.', 'Several primary buttons side by side.', 'Disabling without saying why nearby.'],
-    a11y: ['Defaults to type="button" so it never submits a form by accident.', 'loading sets aria-busy and blocks clicks; the label stays.', 'IconButton requires a label, used as accessible name and tooltip.', 'lg is 44px: use it on touch layouts.'],
-    props: {
-      Button: [
-        { name: 'variant', type: "'primary' | 'secondary' | 'ghost' | 'danger'", default: "'primary'", description: 'Visual weight.' },
-        { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: '32px, 40px or 44px tall.' },
-        { name: 'loading', type: 'boolean', description: 'Shows a spinner and blocks clicks.' },
-        { name: 'icon', type: 'ReactNode', description: 'Decorative icon before the label.' },
-        { name: '…rest', type: 'ButtonHTMLAttributes', description: 'Everything a <button> accepts.' },
-      ],
-      IconButton: [
-        { name: 'label', type: 'string', description: 'Required accessible name.' },
-        { name: 'variant / size', type: 'as Button', default: "'ghost' / 'md'", description: 'Same options as Button.' },
+    id: 'site-header', name: 'Site header', group: 'Layout', example: 'site-header',
+    summary: 'The top bar of every public page: brand, primary navigation, and the controls that always stay visible. Collapses into a menu button on narrow screens.',
+    js: { import: "import '@nyt87/ui/menu'", size: '0.45 KB' },
+    use: ['Brand on the left, navigation next, one primary action on the right.', 'Mark the current page with aria-current="page".', 'Give a language link lang and hreflang so screen readers pronounce it correctly.', 'Repeat the links inside the panel: it is the menu shown on narrow screens.'],
+    avoid: ['More than about six links: group them or move them to the footer.', 'A different header on each page of the same product.', 'Leaving the panel out: below 830px the links would disappear.'],
+    a11y: ['The brand link needs an aria-label when its name is an image.', 'Navigation is a labelled <nav>; the menu is a disclosure button with aria-expanded and aria-controls.', 'Esc closes the menu and returns focus to the button; so do choosing a link and clicking outside.', 'Links and the menu button are at least 44px tall. Put a skip link ("ds-skip") first on the page.'],
+    api: {
+      'Elements and classes': [
+        { name: 'header.ds-header', values: '+ ds-header--sticky', description: 'The bar. Sticky keeps it at the top while scrolling.' },
+        { name: '.ds-container', values: '', description: 'Centres content at --max-width with the page gutter.' },
+        { name: 'a.ds-brand', values: 'with .ds-brand__mark, .ds-brand__name', description: 'Logo lockup. The mark is decorative.' },
+        { name: 'nav.ds-header__nav', values: 'a.ds-header__link', description: 'Desktop navigation, hidden below 830px.' },
+        { name: '.ds-header__actions', values: '', description: 'Always-visible controls on the right.' },
+        { name: 'button.ds-header__menu', values: 'aria-controls, aria-expanded', description: 'Menu button, shown below 830px. Add data-label-open / data-label-close to translate its label.' },
+        { name: 'nav.ds-header__panel', values: 'hidden', description: 'The mobile menu: the same links, opened by the button.' },
+        { name: 'a.ds-skip', values: 'href="#main"', description: 'Skip link, visible only when focused.' },
       ],
     },
   },
   {
-    id: 'input', name: 'Input, Textarea, Select', group: 'Forms', example: 'Input',
-    summary: 'Text-like form controls with a visible label, optional hint and error, wired for assistive tech.',
+    id: 'site-footer', name: 'Site footer', group: 'Layout', example: 'site-footer',
+    summary: 'The bottom of every public page: what the product is, where to go next, and who made it, with the shared "Made with love by nyt87" credit.',
+    js: null,
+    use: ['A tagline of one or two sentences, then link columns or one row of links.', 'Use ds-footer__note for disclaimers, affiliation and licence lines.', 'Keep the credit: it ties every product back to the studio.'],
+    avoid: ['Repeating the whole header navigation.', 'Legal text in the tagline: use a note.'],
+    a11y: ['Each column is a <nav> named by its heading, and the heading is a real <h2>.', 'External links open in a new tab with rel="noopener noreferrer".', 'The heart has role="img" and aria-label="love".'],
+    api: {
+      'Elements and classes': [
+        { name: 'footer.ds-footer', values: '', description: 'The footer. Wrap its content in .ds-container.' },
+        { name: '.ds-footer__top', values: '', description: 'Brand, tagline and link groups.' },
+        { name: '.ds-footer__brand', values: '.ds-brand + p.ds-footer__tagline', description: 'The brand and one or two sentences.' },
+        { name: 'nav.ds-footer__col', values: 'h2.ds-footer__heading + ul', description: 'A titled link group. Name it with aria-label.' },
+        { name: 'nav.ds-footer__row', values: 'a.ds-footer__link', description: 'A single row of links, instead of columns.' },
+        { name: '.ds-footer__bottom', values: 'p.ds-footer__credit, p.ds-footer__note', description: 'Copyright, studio credit and notes.' },
+      ],
+    },
+  },
+  {
+    id: 'button', name: 'Button', group: 'Actions', example: 'button',
+    summary: 'Triggers an action. The same classes style a link that acts like a button.',
+    js: null,
+    use: ['One primary button per view or dialog.', 'Verbs for labels: "Save", "Import file", not "OK".', 'Use danger only for destructive, irreversible actions.'],
+    avoid: ['A <button> to navigate: use a link.', 'Several primary buttons side by side.', 'Disabling without saying why nearby.'],
+    a11y: ['Always write type="button" outside a form, so it never submits by accident.', 'Loading: set aria-busy="true" and disabled, and keep the label so the width does not jump.', 'An icon-only button needs aria-label.', 'ds-btn--lg is 44px: use it on touch layouts.'],
+    api: {
+      'Button': modifiers([
+        { name: '.ds-btn', values: '', description: 'Required base class.' },
+        { name: 'variant', values: 'ds-btn--primary | --secondary | --ghost | --danger', description: 'Visual weight.' },
+        { name: 'size', values: 'ds-btn--sm | --md | --lg', description: '32px, 40px or 44px tall.' },
+        { name: 'ds-btn--icon-only', values: '', description: 'A square button for one icon. Needs aria-label.' },
+        { name: 'span.ds-btn__icon', values: 'aria-hidden="true"', description: 'A decorative icon before the label.' },
+        { name: 'span.ds-spinner', values: 'inside a busy button', description: 'Shows progress while aria-busy.' },
+      ]),
+    },
+  },
+  {
+    id: 'input', name: 'Input, textarea, select', group: 'Forms', example: 'input',
+    summary: 'Text-like form controls with a visible label, optional hint and error.',
+    js: null,
     use: ['Always give a label; use placeholder only for an example value.', 'Put the fix in the error: "Enter a valid email", not "Invalid".'],
     avoid: ['Hiding the label.', 'Colour-only error states: the message is always shown.'],
-    a11y: ['Label, hint and error are linked with for / aria-describedby.', 'An error sets aria-invalid and is announced (role="alert").', 'Border uses --border-strong (3:1 against the surface).'],
-    props: {
-      'Input / Textarea / Select': [
-        { name: 'label', type: 'ReactNode', description: 'Required visible label.' },
-        { name: 'hint', type: 'ReactNode', description: 'Help text under the control.' },
-        { name: 'error', type: 'ReactNode', description: 'Marks the field invalid and shows the message.' },
-        { name: 'required', type: 'boolean', description: 'Adds a required marker.' },
-        { name: '…rest', type: 'native attributes', description: 'Passed to the underlying element.' },
-      ],
+    a11y: ['Connect label and control with for / id, and hint and error with aria-describedby.', 'An invalid control has aria-invalid="true", and its message has role="alert" so it is announced.', 'The border uses --border-strong (3:1 against the surface).'],
+    api: {
+      'Field': modifiers([
+        { name: '.ds-field', values: '', description: 'Wrapper: label, control, hint, error.' },
+        { name: 'label.ds-field__label', values: 'for="id"', description: 'Visible label. Add span.ds-field__req (aria-hidden) after required fields.' },
+        { name: 'p.ds-field__hint', values: 'id', description: 'Help text. Reference it from aria-describedby.' },
+        { name: 'p.ds-field__error', values: 'id, role="alert"', description: 'Error message. Reference it from aria-describedby and set aria-invalid on the control.' },
+      ]),
+      'Controls': modifiers([
+        { name: '.ds-control', values: 'on <input>, <select>, <textarea>', description: 'Required class for every text-like control.' },
+        { name: 'ds-control--select', values: 'on <select>', description: 'Adds the chevron.' },
+        { name: 'ds-control--area', values: 'on <textarea>', description: 'Padding and vertical resize.' },
+      ]),
     },
   },
   {
-    id: 'choice', name: 'Checkbox, Switch', group: 'Forms', example: 'Choice',
+    id: 'choice', name: 'Checkbox, switch', group: 'Forms', example: 'choice',
     summary: 'Checkbox for a choice that is submitted later. Switch for a setting that applies immediately.',
-    use: ['Switch labels describe the setting, not the action ("Background sync").', 'Use hint to explain the effect.'],
-    avoid: ['A Switch inside a form that needs a Save button.', 'Negative labels ("Disable X").'],
-    a11y: ['Native checkbox inputs: keyboard and form behaviour for free.', 'Switch has role="switch".', 'The whole label is clickable.'],
-    props: {
-      'Checkbox / Switch': [
-        { name: 'label', type: 'ReactNode', description: 'Required visible label.' },
-        { name: 'hint', type: 'ReactNode', description: 'Secondary line under the label.' },
-        { name: '…rest', type: 'input attributes', description: 'checked, onChange, disabled, name…' },
-      ],
+    js: null,
+    use: ['Switch labels describe the setting, not the action ("Background sync").', 'Use the hint to explain the effect.'],
+    avoid: ['A switch inside a form that needs a Save button.', 'Negative labels ("Disable X").'],
+    a11y: ['Native checkbox inputs: keyboard and form behaviour come for free.', 'The switch has role="switch".', 'The whole label is clickable.'],
+    api: {
+      'Choice': modifiers([
+        { name: 'label.ds-choice', values: '', description: 'Wraps the input and its text, so the whole row is clickable.' },
+        { name: 'input.ds-choice__box', values: 'type="checkbox"', description: 'The checkbox.' },
+        { name: 'input.ds-switch', values: 'type="checkbox" role="switch"', description: 'The switch.' },
+        { name: 'span.ds-choice__text', values: '+ span.ds-choice__hint', description: 'Label text and an optional hint line.' },
+      ]),
     },
   },
   {
-    id: 'segmented', name: 'Segmented', group: 'Forms', example: 'Segmented',
+    id: 'segmented', name: 'Segmented', group: 'Forms', example: 'segmented',
     summary: 'Pick exactly one of two to five short options, such as a chart metric or a view mode.',
+    js: null,
     use: ['Options that change the view in place.', 'Short labels (one or two words).'],
-    avoid: ['More than five options: use Select.', 'Navigation between pages: use Tabs or links.'],
-    a11y: ['A radiogroup of native radios: arrow keys move and select.', 'label names the group.'],
-    props: {
-      Segmented: [
-        { name: 'label', type: 'string', description: 'Required accessible name of the group.' },
-        { name: 'options', type: '{ value, label }[]', description: 'The choices.' },
-        { name: 'value', type: 'string', description: 'Selected value (controlled).' },
-        { name: 'onChange', type: '(value) => void', description: 'Called with the new value.' },
-        { name: 'size', type: "'sm' | 'md'", default: "'md'", description: 'Control height.' },
-      ],
+    avoid: ['More than five options: use a select.', 'Navigation between pages: use tabs or links.'],
+    a11y: ['A radiogroup of native radios: arrow keys move and select, with no script.', 'aria-label names the group.'],
+    api: {
+      'Segmented': modifiers([
+        { name: 'div.ds-seg', values: 'role="radiogroup" aria-label', description: 'The group. Add ds-seg--sm or ds-seg--md.' },
+        { name: 'label.ds-seg__item', values: 'input[type=radio] + span', description: 'One option. Radios share a name.' },
+      ]),
     },
   },
   {
-    id: 'card', name: 'Card', group: 'Display', example: 'Card',
-    summary: 'A raised surface that groups related content, with an optional header.',
-    use: ['Group things that belong together.', 'Set headingLevel so the page outline stays correct.'],
-    avoid: ['Cards inside cards.', 'Using a card for a single line of text.'],
-    a11y: ['Renders a section; the title is a real heading.'],
-    props: {
-      Card: [
-        { name: 'title', type: 'ReactNode', description: 'Heading text.' },
-        { name: 'actions', type: 'ReactNode', description: 'Controls on the right of the header.' },
-        { name: 'headingLevel', type: '2 | 3 | 4', default: '3', description: 'Which heading element the title uses.' },
-        { name: 'as', type: "'section' | 'div' | 'article'", default: "'section'", description: 'Wrapper element.' },
-      ],
-    },
-  },
-  {
-    id: 'badge', name: 'Badge', group: 'Display', example: 'Badge',
-    summary: 'A short status or category label.',
-    use: ['One or two words.', 'Pick the tone by meaning: ok = healthy, warn = needs attention soon, danger = broken.'],
-    avoid: ['Relying on colour alone: the text always carries the meaning.', 'Using accent for status.'],
-    a11y: ['Text colour is --fg; the tone is a dot and tint, so contrast does not depend on the tone.'],
-    props: { Badge: [{ name: 'tone', type: "'neutral' | 'accent' | 'ok' | 'warn' | 'danger'", default: "'neutral'", description: 'Meaning of the label.' }] },
-  },
-  {
-    id: 'stat', name: 'Stat, StatGrid', group: 'Display', example: 'Stat',
-    summary: 'Key numbers at a glance, in a responsive grid.',
-    use: ['Put the unit in unit, not in value.', 'Four to six stats per grid.'],
-    avoid: ['Long text values.', 'Stats with no label.'],
-    a11y: ['Renders a definition list: each value is announced with its label.', 'Numbers use tabular figures so they do not jitter.'],
-    props: {
-      Stat: [
-        { name: 'label', type: 'ReactNode', description: 'What is measured.' },
-        { name: 'value', type: 'ReactNode', description: 'The number.' },
-        { name: 'unit', type: 'string', description: 'Smaller unit after the value.' },
-        { name: 'hint', type: 'ReactNode', description: 'Context line, e.g. a comparison.' },
-      ],
-    },
-  },
-  {
-    id: 'table', name: 'Table', group: 'Display', example: 'Table',
-    summary: 'A styled native table inside a horizontal scroller.',
-    use: ['Use <th scope="col"> and <th scope="row">.', 'Add className="ds-num" to numeric cells to right-align them.'],
-    avoid: ['Layout tables.', 'Hiding columns on mobile: let it scroll.'],
-    a11y: ['caption names the table (visually hidden by default).', 'The scroller is focusable so keyboard users can scroll it.'],
-    props: {
-      Table: [
-        { name: 'caption', type: 'string', description: 'Required accessible name.' },
-        { name: 'showCaption', type: 'boolean', description: 'Show the caption visibly.' },
-      ],
-    },
-  },
-  {
-    id: 'code-block', name: 'CodeBlock', group: 'Display', example: 'CodeBlock',
-    summary: 'A monospace block with a copy button, for commands, IDs and payloads.',
-    use: ['Identifiers, commands and JSON: they are never translated.'],
-    avoid: ['Long files: link to them.'],
-    a11y: ['The block is focusable so long lines can be scrolled by keyboard.', 'The copy button announces "Copied".'],
-    props: { CodeBlock: [{ name: 'code', type: 'string', description: 'The text.' }, { name: 'language', type: 'string', description: 'Small tag in the corner.' }] },
-  },
-  {
-    id: 'alert', name: 'Alert', group: 'Feedback', example: 'Alert',
-    summary: 'An inline message about the state of the page or an operation.',
-    use: ['Say what happened and what to do next.', 'Offer the fix in action (retry, reconnect).'],
-    avoid: ['Stacking several alerts.', 'Using danger for things the user cannot act on.'],
-    a11y: ['warn and danger use role="alert" (announced at once); info and ok use role="status".', 'Never colour-only: the left bar is reinforced by the title.'],
-    props: {
-      Alert: [
-        { name: 'tone', type: "'info' | 'ok' | 'warn' | 'danger'", default: "'info'", description: 'Severity.' },
-        { name: 'title', type: 'ReactNode', description: 'One-line summary.' },
-        { name: 'children', type: 'ReactNode', description: 'Details.' },
-        { name: 'action', type: 'ReactNode', description: 'A button, usually.' },
-      ],
-    },
-  },
-  {
-    id: 'empty-state', name: 'EmptyState', group: 'Feedback', example: 'EmptyState',
-    summary: 'What to show when there is nothing yet.',
-    use: ['Explain what will appear here and how to get it.', 'Include one clear primary action.'],
-    avoid: ['A bare "No data".'],
-    a11y: ['The icon is decorative and hidden from assistive tech.'],
-    props: {
-      EmptyState: [
-        { name: 'title', type: 'ReactNode', description: 'Short statement.' },
-        { name: 'children', type: 'ReactNode', description: 'Next-step explanation.' },
-        { name: 'action', type: 'ReactNode', description: 'Primary action.' },
-        { name: 'icon', type: 'ReactNode', description: 'Decorative glyph.' },
-      ],
-    },
-  },
-  {
-    id: 'spinner', name: 'Spinner', group: 'Feedback', example: 'Spinner',
-    summary: 'Indicates work in progress when duration is unknown.',
-    use: ['Pair with a label for longer waits.'],
-    avoid: ['Spinners for under ~300 ms.'],
-    a11y: ['role="status" with an accessible label; pass label="" when inside a labelled control.', 'Spins slower under prefers-reduced-motion.'],
-    props: { Spinner: [{ name: 'size', type: 'string', default: "'1.25rem'", description: 'CSS length.' }, { name: 'label', type: 'string', default: "'Loading'", description: 'Announced text.' }] },
-  },
-  {
-    id: 'tabs', name: 'Tabs', group: 'Navigation', example: 'Tabs',
-    summary: 'Switch between sibling panels of the same page.',
-    use: ['Two to six tabs with short labels.'],
-    avoid: ['Tabs that change the URL or page: use links.', 'Hiding content the user must see.'],
-    a11y: ['Full WAI-ARIA tabs pattern: arrow keys, Home and End; only the active tab is in the tab order.'],
-    props: {
-      Tabs: [
-        { name: 'label', type: 'string', description: 'Required name of the tab list.' },
-        { name: 'tabs', type: '{ id, label, content }[]', description: 'The tabs and their panels.' },
-        { name: 'defaultId / value / onChange', type: 'string / string / fn', description: 'Uncontrolled or controlled selection.' },
-      ],
-    },
-  },
-  {
-    id: 'modal', name: 'Modal', group: 'Overlays', example: 'Modal',
-    summary: 'A focused dialog that blocks the page until dismissed.',
-    use: ['Short, self-contained tasks.', 'Title says what the dialog is for; footer holds the actions.'],
-    avoid: ['Long flows: use a page.', 'Modal on top of modal.'],
-    a11y: ['Built on native <dialog>: focus is trapped, Esc closes, the page behind is inert, focus returns to the opener.', 'The title names the dialog.'],
-    props: {
-      Modal: [
-        { name: 'open', type: 'boolean', description: 'Controlled visibility.' },
-        { name: 'onClose', type: '() => void', description: 'Esc, backdrop click or the Close button.' },
-        { name: 'title', type: 'ReactNode', description: 'Required dialog name.' },
-        { name: 'footer', type: 'ReactNode', description: 'Actions. Defaults to a Close button.' },
-        { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: '24, 32 or 48 rem wide.' },
-      ],
-    },
-  },
-  {
-    id: 'file-drop-zone', name: 'FileDropZone', group: 'Forms', example: 'FileDropZone',
+    id: 'file-drop-zone', name: 'File drop zone', group: 'Forms', example: 'file-drop-zone',
     summary: 'Drag-and-drop target that is also a normal file picker.',
+    js: { import: "import '@nyt87/ui/drop'", size: '0.44 KB' },
     use: ['Say which formats are accepted.'],
     avoid: ['Drag-only upload.'],
     a11y: ['The "Choose file" button covers keyboard and touch users.'],
-    props: {
-      FileDropZone: [
-        { name: 'onFiles', type: '(files: File[]) => void', description: 'Called with the chosen or dropped files.' },
-        { name: 'accept', type: 'string', description: 'File types for the picker.' },
-        { name: 'multiple', type: 'boolean', description: 'Allow more than one file.' },
-      ],
+    api: {
+      'Markup': modifiers([
+        { name: '.ds-drop', values: '', description: 'The zone. Gets ds-drop--over while a file is dragged over it.' },
+        { name: 'input[type=file]', values: 'hidden, accept, multiple', description: 'The real picker. Cleared after each selection.' },
+        { name: 'button[data-ds-drop-pick]', values: '', description: 'Opens the picker.' },
+      ]),
+      'Event': modifiers([
+        { name: 'ds-files', values: 'detail.files: File[]', description: 'Fired on the zone (and bubbles) for dropped or chosen files.' },
+      ]),
     },
   },
   {
-    id: 'site-header', name: 'SiteHeader', group: 'Layout', example: 'SiteHeader',
-    summary: 'The top bar of every public page: brand, primary navigation, and the controls that always stay visible. Collapses into a menu button on narrow screens.',
-    use: ['Brand on the left, navigation next, one primary action on the right (put it in actions).', 'Mark the current page with current: true.', 'Add a language link with lang and hrefLang so screen readers pronounce it correctly.', 'Pass renderLink to use your router\'s link component for internal links.'],
-    avoid: ['More than about six links: group them or move them to the footer.', 'Putting the whole navigation in actions: it would not collapse.', 'A different header on each page of the same product.'],
-    a11y: ['The brand link needs a label when the name is an image (brand.label).', 'Navigation is a labelled <nav>; the mobile menu is a disclosure button with aria-expanded and aria-controls.', 'Esc closes the menu and returns focus to the button; so does choosing a link or clicking outside.', 'Links and the menu button are at least 44px tall. Pair with SkipLink as the first element on the page.'],
-    props: {
-      SiteHeader: [
-        { name: 'brand', type: '{ name, href?, mark?, label? }', description: 'Wordmark or logo, where it links to, optional decorative mark.' },
-        { name: 'nav', type: 'NavLink[]', description: 'Primary links: { label, href, current?, external?, lang?, hrefLang? }.' },
-        { name: 'navLabel', type: 'string', default: "'Primary'", description: 'Accessible name of the navigation.' },
-        { name: 'actions', type: 'ReactNode', description: 'Always-visible controls on the right.' },
-        { name: 'sticky', type: 'boolean', description: 'Keep the header at the top while scrolling.' },
-        { name: 'renderLink', type: '(props) => ReactNode', description: 'Render internal links with your router.' },
-        { name: 'menuLabel', type: '{ open, close }', description: 'Translate the menu button label.' },
-      ],
-      'Related: SkipLink, Container': [
-        { name: 'SkipLink', type: 'href?, children?', default: "'#main', 'Skip to content'", description: 'Visible only when focused.' },
-        { name: 'Container', type: 'div attributes', description: 'Centres content at --max-width with the page gutter.' },
-      ],
+    id: 'card', name: 'Card', group: 'Display', example: 'card',
+    summary: 'A raised surface that groups related content, with an optional header.',
+    js: null,
+    use: ['Group things that belong together.', 'Pick the heading level (h2, h3, h4) so the page outline stays correct.'],
+    avoid: ['Cards inside cards.', 'Using a card for a single line of text.'],
+    a11y: ['Use a <section> so the title is a real heading in the outline.'],
+    api: {
+      'Card': modifiers([
+        { name: '.ds-card', values: '', description: 'The surface.' },
+        { name: 'header.ds-card__head', values: '.ds-card__title + .ds-card__actions', description: 'Optional header: title and controls.' },
+        { name: '.ds-card__body', values: '', description: 'The content.' },
+      ]),
     },
   },
   {
-    id: 'site-footer', name: 'SiteFooter', group: 'Layout', example: 'SiteFooter',
-    summary: 'The bottom of every public page: what the product is, where to go next, and who made it, with the shared "Made with love by nyt87" credit.',
-    use: ['A tagline of one or two sentences, then link columns or one row of links.', 'Use notes for disclaimers, affiliation and licence lines.', 'Keep the credit: it ties every product back to the studio.'],
-    avoid: ['Repeating the whole header navigation.', 'Legal text in the tagline: use notes.'],
-    a11y: ['Each column is a <nav> named by its title, and the title is a real heading.', 'External links open in a new tab with rel="noopener noreferrer".', 'The heart is announced as "love".'],
-    props: {
-      SiteFooter: [
-        { name: 'brand', type: '{ name, href?, mark?, label? }', description: 'Same shape as the header brand.' },
-        { name: 'tagline', type: 'ReactNode', description: 'What the product is.' },
-        { name: 'columns', type: '{ title, links }[]', description: 'Titled link groups.' },
-        { name: 'links / linksLabel', type: 'NavLink[] / string', description: 'A single row of links instead of columns.' },
-        { name: 'notes', type: 'ReactNode[]', description: 'Disclaimer and licence lines under the credit.' },
-        { name: 'copyright', type: 'ReactNode', description: 'Owner in the copyright line. Defaults to the brand name.' },
-        { name: 'credit', type: "boolean | { name, href }", default: 'true', description: 'The studio credit. false hides it.' },
-        { name: 'year', type: 'number', default: 'current year', description: 'Copyright year.' },
-        { name: 'renderLink', type: '(props) => ReactNode', description: 'Render internal links with your router.' },
-      ],
+    id: 'badge', name: 'Badge', group: 'Display', example: 'badge',
+    summary: 'A short status or category label.',
+    js: null,
+    use: ['One or two words.', 'Pick the tone by meaning: ok = healthy, warn = needs attention soon, danger = broken.'],
+    avoid: ['Relying on colour alone: the text always carries the meaning.', 'Using accent for status.'],
+    a11y: ['Text colour is --fg; the tone is a dot and tint, so contrast does not depend on the tone.'],
+    api: {
+      'Badge': modifiers([
+        { name: '.ds-badge', values: '', description: 'The label. Start it with span.ds-badge__dot (aria-hidden).' },
+        { name: 'tone', values: 'ds-badge--accent | --ok | --warn | --danger', default: 'neutral', description: 'Meaning of the label.' },
+      ]),
     },
   },
   {
-    id: 'theme-scope', name: 'ThemeScope', group: 'Theming', example: 'ThemeScope',
-    summary: 'Re-colour everything inside it with your own colours, in light and dark mode, without writing global CSS. Use the theme builder to pick colours that pass contrast.',
-    use: ['List only the tokens you change; the rest inherit from the brand.', 'Provide both light and dark values for the accent family: accent, on-accent, accent-ink, ring.', 'For a whole product, set the theme once with defineTheme and data-accent instead (see the theme builder).'],
+    id: 'stat', name: 'Stat', group: 'Display', example: 'stat',
+    summary: 'Key numbers at a glance, in a responsive grid.',
+    js: null,
+    use: ['Put the unit in .ds-stat__unit, not in the number.', 'Four to six stats per grid.'],
+    avoid: ['Long text values.', 'Stats with no label.'],
+    a11y: ['A definition list: each value is announced with its label.', 'Numbers use tabular figures so they do not jitter.'],
+    api: {
+      'Stat': modifiers([
+        { name: 'dl.ds-stats', values: '', description: 'The grid.' },
+        { name: '.ds-stat', values: 'dt.ds-stat__label + dd.ds-stat__value', description: 'One figure.' },
+        { name: '.ds-stat__num, .ds-stat__unit, .ds-stat__hint', values: 'inside the dd', description: 'The number, a smaller unit, and a context line.' },
+      ]),
+    },
+  },
+  {
+    id: 'table', name: 'Table', group: 'Display', example: 'table',
+    summary: 'A styled native table inside a horizontal scroller.',
+    js: null,
+    use: ['Use <th scope="col"> and <th scope="row">.', 'Add class "ds-num" to numeric cells to right-align them.'],
+    avoid: ['Layout tables.', 'Hiding columns on mobile: let it scroll.'],
+    a11y: ['The <caption> names the table; use class "ds-sr-only" to hide it visually but keep it for screen readers.', 'The scroller is focusable (tabindex="0") so keyboard users can scroll it, and has role="region" with a label.'],
+    api: {
+      'Table': modifiers([
+        { name: 'div.ds-table-wrap', values: 'role="region" aria-label tabindex="0"', description: 'Horizontal scroller.' },
+        { name: 'table.ds-table', values: '', description: 'The table.' },
+        { name: 'caption.ds-sr-only | .ds-table__caption', values: '', description: 'Hidden or visible caption.' },
+        { name: '.ds-num', values: 'on th or td', description: 'Right-aligned, tabular numbers.' },
+      ]),
+    },
+  },
+  {
+    id: 'code-block', name: 'Code block', group: 'Display', example: 'code-block',
+    summary: 'A monospace block with a copy button, for commands, IDs and payloads.',
+    js: { import: "import '@nyt87/ui/copy'", size: '0.33 KB' },
+    use: ['Identifiers, commands and JSON: they are never translated.'],
+    avoid: ['Long files: link to them.'],
+    a11y: ['The <pre> is focusable (tabindex="0") so long lines can be scrolled by keyboard.', 'The copy button is a live region and announces "Copied".'],
+    api: {
+      'Code block': modifiers([
+        { name: '.ds-code', values: '.ds-code__bar + pre', description: 'The block.' },
+        { name: 'button.ds-code__copy', values: 'data-ds-copy', description: 'Copies the text of the <pre> in the same block. Use data-ds-copy="#id" to copy another element.' },
+        { name: 'data-copied-label', values: 'string', default: "'Copied'", description: 'Translate the confirmation.' },
+      ]),
+    },
+  },
+  {
+    id: 'alert', name: 'Alert', group: 'Feedback', example: 'alert',
+    summary: 'An inline message about the state of the page or an operation.',
+    js: null,
+    use: ['Say what happened and what to do next.', 'Offer the fix in ds-alert__action (retry, reconnect).'],
+    avoid: ['Stacking several alerts.', 'Using danger for things the user cannot act on.'],
+    a11y: ['warn and danger use role="alert" (announced at once); info and ok use role="status".', 'Never colour-only: the left bar is reinforced by the title.'],
+    api: {
+      'Alert': modifiers([
+        { name: '.ds-alert', values: 'role="alert" | role="status"', description: 'The message. Use alert for warn and danger.' },
+        { name: 'tone', values: 'ds-alert--ok | --warn | --danger', default: 'info', description: 'Severity.' },
+        { name: '.ds-alert__main', values: 'p.ds-alert__title + .ds-alert__body', description: 'Summary and details.' },
+        { name: '.ds-alert__action', values: '', description: 'A button, usually.' },
+      ]),
+    },
+  },
+  {
+    id: 'empty-state', name: 'Empty state', group: 'Feedback', example: 'empty-state',
+    summary: 'What to show when there is nothing yet.',
+    js: null,
+    use: ['Explain what will appear here and how to get it.', 'Include one clear primary action.'],
+    avoid: ['A bare "No data".'],
+    a11y: ['The icon is decorative: aria-hidden="true".'],
+    api: {
+      'Empty state': modifiers([
+        { name: '.ds-empty', values: '', description: 'The container.' },
+        { name: '.ds-empty__icon, __title, __body, __action', values: '', description: 'Optional glyph, short statement, next-step explanation, primary action.' },
+      ]),
+    },
+  },
+  {
+    id: 'spinner', name: 'Spinner', group: 'Feedback', example: 'spinner',
+    summary: 'Indicates work in progress when duration is unknown.',
+    js: null,
+    use: ['Pair with a label for longer waits.'],
+    avoid: ['Spinners for under ~300 ms.'],
+    a11y: ['role="status" with an aria-label; make it aria-hidden when it sits inside something already labelled (a busy button).', 'Spins slower under prefers-reduced-motion.'],
+    api: {
+      'Spinner': modifiers([
+        { name: 'span.ds-spinner', values: 'role="status" aria-label', description: 'The spinner.' },
+        { name: '--ds-spinner-size', values: 'CSS length', default: '1.25rem', description: 'Set it in style="" to resize.' },
+      ]),
+    },
+  },
+  {
+    id: 'tabs', name: 'Tabs', group: 'Navigation', example: 'tabs',
+    summary: 'Switch between sibling panels of the same page.',
+    js: { import: "import '@nyt87/ui/tabs'", size: '0.5 KB' },
+    use: ['Two to six tabs with short labels.', 'Write the initial state in the markup: the selected tab, tabindex="-1" on the others, hidden on the other panels.'],
+    avoid: ['Tabs that change the URL or page: use links.', 'Hiding content the user must see.'],
+    a11y: ['The full WAI-ARIA tabs pattern: arrow keys, Home and End; only the active tab is in the tab order.', 'Each panel is labelled by its tab.'],
+    api: {
+      'Markup': modifiers([
+        { name: '.ds-tabs', values: '', description: 'Container for the list and panels.' },
+        { name: '[role=tablist].ds-tabs__list', values: 'aria-label', description: 'The tab list.' },
+        { name: 'button[role=tab].ds-tabs__tab', values: 'id, aria-controls, aria-selected, tabindex', description: 'One tab.' },
+        { name: '[role=tabpanel].ds-tabs__panel', values: 'id, aria-labelledby, tabindex="0", hidden', description: 'One panel.' },
+      ]),
+      'Event': modifiers([
+        { name: 'ds-tab-change', values: 'detail.id', description: 'Fired on the chosen tab (and bubbles).' },
+      ]),
+    },
+  },
+  {
+    id: 'modal', name: 'Modal', group: 'Overlays', example: 'modal',
+    summary: 'A focused dialog that blocks the page until dismissed.',
+    js: { import: "import '@nyt87/ui/modal'", size: '0.26 KB' },
+    use: ['Short, self-contained tasks.', 'Title says what the dialog is for; the footer holds the actions.'],
+    avoid: ['Long flows: use a page.', 'A modal on top of a modal.'],
+    a11y: ['Built on the native <dialog>: focus is trapped, Esc closes, the page behind is inert, focus returns to the opener.', 'aria-labelledby points at the title.'],
+    api: {
+      'Markup': modifiers([
+        { name: 'dialog.ds-modal', values: 'id, aria-labelledby + ds-modal--sm | --md | --lg', description: 'The dialog: 24, 32 or 48 rem wide.' },
+        { name: '.ds-modal__panel', values: 'h2.ds-modal__title + .ds-modal__body + .ds-modal__foot', description: 'Title, content and actions.' },
+      ]),
+      'Attributes': modifiers([
+        { name: '[data-ds-modal-open]', values: 'dialog id', description: 'On any element: opens that dialog.' },
+        { name: '[data-ds-modal-close]', values: '', description: 'On any element inside: closes the dialog. A click on the backdrop closes it too.' },
+      ]),
+    },
+  },
+  {
+    id: 'theme-scope', name: 'Theme scope', group: 'Theming', example: 'theme-scope',
+    summary: 'Re-colour everything inside an element with your own colours, in light and dark mode, without writing global CSS. Use the theme builder to pick colours that pass contrast.',
+    js: { import: "import '@nyt87/ui/theme-scope'", size: '0.6 KB + 1.5 KB contrast checker' },
+    use: ['List only the tokens you change; the rest inherit from the brand.', 'Provide both light and dark values for the accent family: accent, on-accent, accent-ink, ring.', 'For a whole product, generate CSS once with defineTheme and set data-accent instead: no script at all (see the theme builder).'],
     avoid: ['Changing status colours (ok, warn, danger): they carry meaning.', 'Overriding tokens with hex values in component CSS.', 'Using a pale accent: on-accent text must reach 4.5:1.'],
-    a11y: ['The theme is checked against the same WCAG rules as the built-in themes; failures are logged to the console, or passed to onContrastFailures.', 'Unknown token names throw, so typos do not silently do nothing.'],
-    props: {
-      ThemeScope: [
-        { name: 'light', type: 'Partial<ColorTokens>', description: 'Colour overrides for light mode.' },
-        { name: 'dark', type: 'Partial<ColorTokens>', description: 'Colour overrides for dark mode (OS preference or data-theme="dark").' },
-        { name: 'as', type: 'ElementType', default: "'div'", description: 'Wrapper element.' },
-        { name: 'onContrastFailures', type: '(failures) => void', description: 'Replaces the default console warning.' },
-      ],
+    a11y: ['The theme is checked against the same WCAG rules as the built-in themes; failures are logged to the console and fired as an event.', 'Unknown token names throw, so typos do not silently do nothing.'],
+    api: {
+      '<ds-theme-scope>': modifiers([
+        { name: 'light', values: 'JSON of colour tokens', description: 'Overrides for light mode.' },
+        { name: 'dark', values: 'JSON of colour tokens', description: 'Overrides for dark mode (OS preference or data-theme="dark").' },
+        { name: 'ds-contrast-failures', values: 'event, detail.failures', description: 'Fired (and bubbles) when the colours fail contrast.' },
+      ]),
     },
   },
 ];
