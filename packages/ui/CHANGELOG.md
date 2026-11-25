@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.2](https://github.com/NYT87/design-system/compare/ui-v0.2.1...ui-v0.2.2) (2026-11-25)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @nyt87/tokens bumped from >=0.1.0 <1.0.0 to >=0.1.1
+
 ## [0.2.1](https://github.com/NYT87/design-system/compare/ui-v0.2.0...ui-v0.2.1) (2026-11-25)
 
 
