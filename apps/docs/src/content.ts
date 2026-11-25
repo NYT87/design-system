@@ -57,16 +57,110 @@ export const components: ComponentDoc[] = [
     },
   },
   {
+    id: 'app-shell', name: 'App shell', group: 'Layout', example: 'app-shell',
+    summary: 'The frame of a dashboard: a sidebar of icon links, a top bar with the page title and actions, and the main area. Below 860px the sidebar becomes a drawer.',
+    js: { import: "import '@nyt87/ui/menu'", size: '0.5 KB' },
+    use: ['One h1 per page, in the top bar.', 'Group related destinations; mark the current one with aria-current="page".', 'Pair every nav link with an icon from @nyt87/icons so the same section looks the same across products.'],
+    avoid: ['More than about eight sidebar links: use headings to group them.', 'Putting page actions in the sidebar: they belong in the top bar.'],
+    a11y: ['The sidebar is a labelled landmark and its links sit in a <nav>.', 'The toggle is a disclosure button with aria-expanded and aria-controls; Esc, a click outside and choosing a link close the drawer.', 'The toggle is only visible below 860px, where the sidebar is hidden.'],
+    api: {
+      'Elements and classes': [
+        { name: '.ds-app', values: '--app-height', description: 'Grid with sidebar, bar and main. --app-height limits the height inside a frame (default full viewport).' },
+        { name: 'aside.ds-app__sidebar', values: 'id, aria-label', description: 'The sidebar. Opens as a drawer by setting data-open on narrow screens.' },
+        { name: 'header.ds-app__bar', values: '.ds-app__title, .ds-app__bar-actions', description: 'Top bar.' },
+        { name: 'button.ds-app__toggle', values: 'aria-controls, aria-expanded', description: 'Opens the sidebar drawer. Hidden on wide screens.' },
+        { name: '.ds-app__scrim', values: 'after the sidebar', description: 'Dims the page behind the open drawer.' },
+        { name: 'ul.ds-nav', values: 'a.ds-nav__link, li.ds-nav__heading', description: 'Sidebar links and group headings.' },
+        { name: 'main.ds-app__main', values: '', description: 'Page content.' },
+      ],
+    },
+  },
+  {
+    id: 'data-table', name: 'Data table', group: 'Display', example: 'data-table',
+    summary: 'Extras on top of Table for lists of records: a toolbar for filter and bulk actions, sortable headers, selected rows, row actions and an empty row.',
+    js: null,
+    use: ['Put filter and bulk actions in the toolbar above the table.', 'Mark only the sorted column with aria-sort; the others "none".', 'Use ds-table--dense for long lists.'],
+    avoid: ['Sorting by colour or icon alone.', 'More than two actions per row: use a side sheet.'],
+    a11y: ['Sort buttons are real <button>s inside the <th>; aria-sort carries the direction.', 'A selected row is tinted; tint is not enough on its own, so pair it with a checked checkbox in the row.', 'Icon-only row actions need aria-label.'],
+    api: {
+      'Elements and classes': [
+        { name: '.ds-toolbar', values: '.ds-toolbar__grow, .ds-toolbar__end', description: 'Filter field and actions above the table.' },
+        { name: 'th[aria-sort]', values: 'ascending | descending | none', description: 'Sorted state; wrap the label in button.ds-table__sort.' },
+        { name: 'tr[data-selected]', values: '', description: 'Selected row tint.' },
+        { name: 'td.ds-table__actions', values: '', description: 'Right-aligned, shrink-to-fit actions cell.' },
+        { name: 'td.ds-table__empty', values: 'colspan', description: 'The "nothing here" row.' },
+        { name: 'ds-table--dense', values: 'on table', description: 'Tighter rows.' },
+      ],
+    },
+  },
+  {
+    id: 'pager', name: 'Pager', group: 'Navigation', example: 'pager',
+    summary: 'Previous, next and numbered pages with a "showing" summary.',
+    js: null,
+    use: ['Use links when each page has a URL, buttons when the list updates in place.', 'Show the range and total.'],
+    avoid: ['Pages of 5 rows: raise the page size.', 'Infinite lists with no way to reach the end.'],
+    a11y: ['A labelled <nav>; the current page has aria-current="page".', 'Each item has an aria-label ("Page 2", "Next page"): icons alone are not names.', 'Disabled items use aria-disabled="true" so they stay discoverable.'],
+    api: {
+      'Elements and classes': [
+        { name: 'nav.ds-pager', values: 'aria-label', description: 'Wrapper: summary on the left, list on the right.' },
+        { name: 'ul.ds-pager__list', values: '', description: 'The row of items.' },
+        { name: '.ds-pager__item', values: 'a or button; aria-current, aria-disabled', description: 'One page or step.' },
+      ],
+    },
+  },
+  {
+    id: 'side-sheet', name: 'Side sheet', group: 'Overlays', example: 'side-sheet',
+    summary: 'A panel docked to the right edge for details and edit forms that should not leave the list. A native dialog, like Modal.',
+    js: { import: "import '@nyt87/ui/modal'", size: '0.33 KB' },
+    use: ['Details or editing of one record while the list stays in context.', 'Put the primary action in the footer.'],
+    avoid: ['Stacking a sheet over a modal.', 'Long multi-step flows: give them a page.'],
+    a11y: ['Native <dialog>: focus is trapped, Esc closes it and focus returns to the opener.', 'Name it with aria-labelledby; the close button needs aria-label.', 'It is full width on phones.'],
+    api: {
+      'Elements and classes': [
+        { name: 'dialog.ds-modal.ds-sheet', values: '+ ds-sheet--lg', description: 'The sheet. Same open and close attributes as Modal.' },
+        { name: '.ds-sheet__head', values: '.ds-modal__title + close button', description: 'Title row with a close button.' },
+        { name: '.ds-modal__body, .ds-modal__foot', values: '', description: 'Scrolling content and footer actions, as in Modal.' },
+      ],
+    },
+  },
+  {
+    id: 'tooltip', name: 'Tooltip', group: 'Overlays', example: 'tooltip',
+    summary: 'Short supplementary text for a control, shown on hover and keyboard focus.',
+    js: null,
+    use: ['Explain an icon-only control or add a short hint.', 'One short sentence.'],
+    avoid: ['Essential information, links or buttons inside it: use a popover or text on the page.', 'Tooltips on touch-only features.'],
+    a11y: ['The trigger references the text with aria-describedby, and the control still has its own accessible name.', 'It appears on focus as well as hover and never takes focus itself.'],
+    api: {
+      'Elements and classes': [
+        { name: 'span.ds-tip', values: '+ ds-tip--below', description: 'Wrapper around the trigger and the text.' },
+        { name: 'span.ds-tip__text', values: 'role="tooltip", id', description: 'The text. Reference its id from the trigger.' },
+      ],
+    },
+  },
+  {
+    id: 'skeleton', name: 'Skeleton', group: 'Feedback', example: 'skeleton',
+    summary: 'A placeholder shaped like the content that is loading.',
+    js: null,
+    use: ['Match the shape and rough size of the real content to avoid layout shift.', 'Use for waits longer than about a second.'],
+    avoid: ['Skeletons for a spinner-sized wait.', 'Leaving them in after an error: show an alert instead.'],
+    a11y: ['Mark the loading region aria-busy="true" and include a screen-reader-only "Loading …" message.', 'Skeleton shapes are aria-hidden; the shimmer stops under reduced motion.'],
+    api: {
+      'Elements and classes': [
+        { name: '.ds-skeleton', values: '--text | --title | --block', description: 'A placeholder bar. Set width inline if needed.' },
+      ],
+    },
+  },
+  {
     id: 'button', name: 'Button', group: 'Actions', example: 'button',
     summary: 'Triggers an action. The same classes style a link that acts like a button.',
     js: null,
-    use: ['One primary button per view or dialog.', 'Verbs for labels: "Save", "Import file", not "OK".', 'Use danger only for destructive, irreversible actions.'],
+    use: ['One primary button per view or dialog.', 'Verbs for labels: "Save", "Import file", not "OK".', 'Use danger only for destructive, irreversible actions; danger-outline for the same action when it is not the main one (a row or toolbar).'],
     avoid: ['A <button> to navigate: use a link.', 'Several primary buttons side by side.', 'Disabling without saying why nearby.'],
     a11y: ['Always write type="button" outside a form, so it never submits by accident.', 'Loading: set aria-busy="true" and disabled, and keep the label so the width does not jump.', 'An icon-only button needs aria-label.', 'ds-btn--lg is 44px: use it on touch layouts.'],
     api: {
       'Button': modifiers([
         { name: '.ds-btn', values: '', description: 'Required base class.' },
-        { name: 'variant', values: 'ds-btn--primary | --secondary | --ghost | --danger', description: 'Visual weight.' },
+        { name: 'variant', values: 'ds-btn--primary | --secondary | --ghost | --danger | --danger-outline', description: 'Visual weight.' },
         { name: 'size', values: 'ds-btn--sm | --md | --lg', description: '32px, 40px or 44px tall.' },
         { name: 'ds-btn--icon-only', values: '', description: 'A square button for one icon. Needs aria-label.' },
         { name: 'svg.ds-icon', values: 'aria-hidden="true"', description: 'A decorative icon before the label, from @nyt87/icons. An icon-only button still needs aria-label.' },

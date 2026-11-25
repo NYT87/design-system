@@ -1,0 +1,21 @@
+<div class="ds-toolbar">
+  <div class="ds-toolbar__grow"><input class="ds-control" type="search" aria-label="Filter connectors" placeholder="Filter connectors"></div>
+  <div class="ds-toolbar__end"><button class="ds-btn ds-btn--secondary ds-btn--md" type="button">Export</button><button class="ds-btn ds-btn--danger-outline ds-btn--md" type="button">Delete selected</button></div>
+</div>
+<div class="ds-table-wrap" role="region" aria-label="Connectors" tabindex="0">
+  <table class="ds-table">
+    <caption class="ds-sr-only">Connectors, sorted by name</caption>
+    <thead>
+      <tr>
+        <th scope="col" aria-sort="ascending"><button class="ds-table__sort" type="button">Name</button></th>
+        <th scope="col">Status</th>
+        <th scope="col" class="ds-num" aria-sort="none"><button class="ds-table__sort" type="button">Runs</button></th>
+        <th scope="col"><span class="ds-sr-only">Actions</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-selected><th scope="row">Strava</th><td><span class="ds-badge ds-badge--ok">Active</span></td><td class="ds-num">1,204</td><td class="ds-table__actions"><button class="ds-btn ds-btn--ghost ds-btn--sm" type="button">Edit</button></td></tr>
+      <tr><th scope="row">Garmin</th><td><span class="ds-badge ds-badge--warn">Paused</span></td><td class="ds-num">311</td><td class="ds-table__actions"><button class="ds-btn ds-btn--ghost ds-btn--sm" type="button">Edit</button></td></tr>
+    </tbody>
+  </table>
+</div>
