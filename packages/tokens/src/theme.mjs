@@ -1,5 +1,5 @@
 // Custom themes: generate CSS for any subset of colour tokens, and check it still meets WCAG.
-// Pure JS with no dependencies, so it runs in Node (build scripts, tests) and in the browser (ThemeScope, theme builder).
+// Pure JS with no dependencies, so it runs in Node (build scripts, tests) and in the browser (<ds-theme-scope>, theme builder).
 import { color } from './tokens.mjs';
 
 export const COLOR_TOKENS = Object.keys(color.light);
@@ -12,7 +12,7 @@ const block = (selector, obj, indent = '') => `${indent}${selector} {\n${decl(ob
  * Dark follows the OS unless data-theme="light" is forced on <html>, and applies unconditionally for data-theme="dark",
  * the same rules as the base tokens.
  *   on: 'root'  -> `selector` matches <html> itself, e.g. ":root[data-accent='acme']"
- *   on: 'scope' -> `selector` matches an element inside the page, e.g. ".acme-theme" (what ThemeScope uses)
+ *   on: 'scope' -> `selector` matches an element inside the page, e.g. ".acme-theme" (what <ds-theme-scope> uses)
  */
 export function themeCss(selector, { light = {}, dark = {} } = {}, { on = 'root' } = {}) {
   const osDark = on === 'root' ? `${selector}:not([data-theme='light'])` : `:root:not([data-theme='light']) ${selector}`;
