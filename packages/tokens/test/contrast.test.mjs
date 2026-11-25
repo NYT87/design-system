@@ -52,3 +52,13 @@ test('theme.d.ts ColorToken union lists exactly the tokens', async () => {
   const names = [...union.matchAll(/'([^']+)'/g)].map((m) => m[1]).sort();
   assert.deepEqual(names, [...COLOR_TOKENS].sort());
 });
+
+import { themes } from '../src/themes.mjs';
+import { defineTheme as define } from '../src/theme.mjs';
+import { test as t2 } from 'node:test';
+import assert2 from 'node:assert/strict';
+for (const theme of Object.values(themes)) {
+  t2(`shared theme "${theme.name}" passes WCAG contrast and uses known tokens`, () => {
+    assert2.deepEqual(define(theme).failures, []);
+  });
+}

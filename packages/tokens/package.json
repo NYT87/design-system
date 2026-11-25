@@ -17,7 +17,12 @@
     "./tokens.mjs": {
       "types": "./src/tokens.d.ts",
       "default": "./src/tokens.mjs"
-    }
+    },
+    "./themes": {
+      "types": "./src/themes.d.ts",
+      "default": "./src/themes.mjs"
+    },
+    "./themes/*.css": "./dist/themes/*.css"
   },
   "scripts": {
     "build": "node scripts/build.mjs",

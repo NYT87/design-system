@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { color, accents, base } from '../src/tokens.mjs';
-import { themeCss } from '../src/theme.mjs';
+import { themeCss, defineTheme } from '../src/theme.mjs';
+import { themes } from '../src/themes.mjs';
 
 const decl = (obj, indent = '  ') =>
   Object.entries(obj).map(([k, v]) => `${indent}--${k}: ${v};`).join('\n');
@@ -29,4 +30,10 @@ for (const [name, a] of Object.entries(accents)) css += '\n' + themeCss(`:root[d
 mkdirSync('dist', { recursive: true });
 writeFileSync('dist/tokens.css', css);
 writeFileSync('dist/tokens.json', JSON.stringify({ color, accents, base }, null, 2) + '\n');
+for (const theme of Object.values(themes)) {
+  const { css: themeOut, failures } = defineTheme(theme);
+  if (failures.length) throw new Error(`Theme "${theme.name}" fails WCAG contrast:\n${failures.map((f) => `  ${f.mode}: ${f.fg} on ${f.bg} is ${f.ratio}:1, needs ${f.min}:1`).join('\n')}`);
+  mkdirSync('dist/themes', { recursive: true });
+  writeFileSync(`dist/themes/${theme.name}.css`, `/* GENERATED from src/themes.mjs by scripts/build.mjs. Do not edit. */\n${themeOut}\n`);
+}
 console.log('built dist/tokens.css, dist/tokens.json');
