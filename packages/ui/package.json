@@ -1,6 +1,6 @@
 {
   "name": "@nyt87/ui",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Framework-free UI components for nyt87 products: HTML + CSS, with small vanilla behaviours for the interactive parts",
   "type": "module",
   "license": "UNLICENSED",
