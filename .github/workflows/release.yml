@@ -8,9 +8,11 @@ name: Release
 #   feat(ui): add Tooltip      fix(tokens): darken warn text      feat(ui)!: rename Button prop
 # docs:, chore:, ci:, test:, refactor: commits do not cause a release.
 #
-# When a repository secret NPM_TOKEN (an npmjs.com automation token that can publish the @nyt87 scope) exists, the same
-# versions are also published to npmjs.org, where anyone can install them without a token. Without the secret that step
-# is skipped. GitHub Packages stays the source of truth; npmjs.org is the public mirror.
+# The same versions are also published to npmjs.org, where anyone can install them without a token. This uses npm trusted
+# publishing: each package on npmjs.com lists this repository and this workflow file (release.yml) as a trusted publisher, and
+# the job proves its identity with a short-lived OIDC token, so no npm secret is stored. If a repository secret NPM_TOKEN
+# exists it is used instead (only needed to bootstrap a package that does not exist on npmjs.org yet). A failure here does
+# not fail the release: GitHub Packages stays the source of truth and npmjs.org is the public mirror.
 #
 # A manual run (Actions > Release > Run workflow) publishes the versions currently in package.json that are not on the registry
 # yet: for the very first release, or to retry a failed publish. Versions already published are skipped.
@@ -84,6 +86,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write # npm trusted publishing (OIDC) to npmjs.org
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -126,7 +129,8 @@ jobs:
               npm publish -w "$name"
             fi
           done
-      - name: Also publish to npmjs.org (skipped when NPM_TOKEN is not set)
+      - name: Also publish to npmjs.org (trusted publishing; failures do not fail the release)
+        continue-on-error: true
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           EVENT: ${{ github.event_name }}
@@ -136,7 +140,7 @@ jobs:
           UI_CREATED: ${{ needs.release-please.outputs.ui_created }}
         run: |
           set -euo pipefail
-          if [ -z "$NPM_TOKEN" ]; then echo 'NPM_TOKEN is not set: skipping npmjs.org.'; exit 0; fi
+          npm --version
           want=""
           if [ "$EVENT" = workflow_dispatch ]; then
             case "$INPUT_PACKAGES" in tokens) want="tokens" ;; icons) want="icons" ;; ui) want="ui" ;; *) want="tokens icons ui" ;; esac
@@ -145,8 +149,10 @@ jobs:
             [ "$ICONS_CREATED" = true ] && want="$want icons"
             [ "$UI_CREATED" = true ] && want="$want ui"
           fi
-          # The scope override beats each package's publishConfig (GitHub Packages); the token is passed for npmjs.org only.
-          npmjs=(--@nyt87:registry=https://registry.npmjs.org/ --//registry.npmjs.org/:_authToken="$NPM_TOKEN" --access public)
+          # The scope override beats each package's publishConfig (GitHub Packages). Without a token npm (11.5.1 or later)
+          # exchanges the job's OIDC identity for a publish credential and adds provenance; with NPM_TOKEN it uses the token.
+          npmjs=(--@nyt87:registry=https://registry.npmjs.org/ --access public)
+          if [ -n "$NPM_TOKEN" ]; then npmjs+=(--//registry.npmjs.org/:_authToken="$NPM_TOKEN"); fi
           for p in $want; do
             name="@nyt87/$p"
             version="$(node -p "require('./packages/$p/package.json').version")"

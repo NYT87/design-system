@@ -48,10 +48,11 @@ test('the published tarballs contain the licence files', () => {
   }
 });
 
-test('the release workflow can also publish to npmjs.org, only when NPM_TOKEN is configured', () => {
+test('the release workflow also publishes to npmjs.org through trusted publishing, without failing the release', () => {
   const workflow = read('.github/workflows/release.yml');
   assert.match(workflow, /NPM_TOKEN: \$\{\{ secrets\.NPM_TOKEN \}\}/);
   assert.match(workflow, /--@nyt87:registry=https:\/\/registry\.npmjs\.org\//);
   assert.match(workflow, /--access public/);
-  assert.match(workflow, /NPM_TOKEN is not set/, 'the step skips quietly without the secret');
+  assert.match(workflow, /id-token: write/, 'OIDC identity for trusted publishing');
+  assert.match(workflow, /continue-on-error: true/, 'the mirror never fails the GitHub Packages release');
 });
