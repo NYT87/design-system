@@ -8,6 +8,10 @@ name: Release
 #   feat(ui): add Tooltip      fix(tokens): darken warn text      feat(ui)!: rename Button prop
 # docs:, chore:, ci:, test:, refactor: commits do not cause a release.
 #
+# When a repository secret NPM_TOKEN (an npmjs.com automation token that can publish the @nyt87 scope) exists, the same
+# versions are also published to npmjs.org, where anyone can install them without a token. Without the secret that step
+# is skipped. GitHub Packages stays the source of truth; npmjs.org is the public mirror.
+#
 # A manual run (Actions > Release > Run workflow) publishes the versions currently in package.json that are not on the registry
 # yet: for the very first release, or to retry a failed publish. Versions already published are skipped.
 
@@ -120,5 +124,36 @@ jobs:
             else
               echo "Publishing $name@$version"
               npm publish -w "$name"
+            fi
+          done
+      - name: Also publish to npmjs.org (skipped when NPM_TOKEN is not set)
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          EVENT: ${{ github.event_name }}
+          INPUT_PACKAGES: ${{ inputs.packages }}
+          TOKENS_CREATED: ${{ needs.release-please.outputs.tokens_created }}
+          ICONS_CREATED: ${{ needs.release-please.outputs.icons_created }}
+          UI_CREATED: ${{ needs.release-please.outputs.ui_created }}
+        run: |
+          set -euo pipefail
+          if [ -z "$NPM_TOKEN" ]; then echo 'NPM_TOKEN is not set: skipping npmjs.org.'; exit 0; fi
+          want=""
+          if [ "$EVENT" = workflow_dispatch ]; then
+            case "$INPUT_PACKAGES" in tokens) want="tokens" ;; icons) want="icons" ;; ui) want="ui" ;; *) want="tokens icons ui" ;; esac
+          else
+            [ "$TOKENS_CREATED" = true ] && want="tokens"
+            [ "$ICONS_CREATED" = true ] && want="$want icons"
+            [ "$UI_CREATED" = true ] && want="$want ui"
+          fi
+          # The scope override beats each package's publishConfig (GitHub Packages); the token is passed for npmjs.org only.
+          npmjs=(--@nyt87:registry=https://registry.npmjs.org/ --//registry.npmjs.org/:_authToken="$NPM_TOKEN" --access public)
+          for p in $want; do
+            name="@nyt87/$p"
+            version="$(node -p "require('./packages/$p/package.json').version")"
+            if npm view "$name@$version" version "${npmjs[@]}" >/dev/null 2>&1; then
+              echo "$name@$version is already on npmjs.org, skipping."
+            else
+              echo "Publishing $name@$version to npmjs.org"
+              npm publish -w "$name" "${npmjs[@]}"
             fi
           done
