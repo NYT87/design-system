@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "The nyt87 icon set: a curated selection of Lucide icons as an SVG sprite and an inline helper, shared by every product",
   "type": "module",
-  "license": "ISC",
+  "license": "MIT AND ISC AND CC0-1.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/NYT87/design-system.git",
@@ -24,8 +24,10 @@
   },
   "sideEffects": false,
   "files": [
-    "dist",
-    "LICENSE-LUCIDE"
+    "LICENSE",
+    "LICENSE-LUCIDE",
+    "THIRD-PARTY-NOTICES.md",
+    "dist"
   ],
   "scripts": {
     "build": "node scripts/build.mjs",

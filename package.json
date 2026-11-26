@@ -12,5 +12,6 @@
     "build": "npm run build:packages && npm run build -w @nyt87/docs",
     "typecheck": "npm run typecheck -w @nyt87/ui && npm run typecheck -w @nyt87/docs",
     "build:packages": "npm run build -w @nyt87/tokens -w @nyt87/icons"
-  }
+  },
+  "license": "MIT"
 }

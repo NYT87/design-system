@@ -3,7 +3,7 @@
   "version": "0.2.2",
   "description": "Framework-free UI components for nyt87 products: HTML + CSS, with small vanilla behaviours for the interactive parts",
   "type": "module",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/NYT87/design-system.git",

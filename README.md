@@ -74,3 +74,7 @@ GitHub Packages needs a token to install, even for public packages.
 
 ## Adopting in a product
 See `packages/tokens/README.md` for the variable rename map. Replace local duplicates (modals, empty states, error panels, stat grids) with `@nyt87/ui` one at a time.
+
+## License
+
+MIT, Copyright (c) 2026 NYT87: see [LICENSE](LICENSE). `@nyt87/icons` also redistributes Lucide (ISC), the GitHub mark (MIT) and the LinkedIn mark (CC0); their notices are in [packages/icons/THIRD-PARTY-NOTICES.md](packages/icons/THIRD-PARTY-NOTICES.md).

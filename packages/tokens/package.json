@@ -29,7 +29,7 @@
     "test": "node --test \"test/*.test.mjs\"",
     "prepack": "node scripts/build.mjs"
   },
-  "license": "UNLICENSED",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/NYT87/design-system.git",
