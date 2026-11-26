@@ -1,6 +1,6 @@
 {
   "name": "@nyt87/icons",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The nyt87 icon set: a curated selection of Lucide icons as an SVG sprite and an inline helper, shared by every product",
   "type": "module",
   "license": "MIT AND ISC AND CC0-1.0",
