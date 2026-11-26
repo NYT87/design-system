@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.3](https://github.com/NYT87/design-system/compare/ui-v0.2.2...ui-v0.2.3) (2026-11-26)
+
+
+### Bug Fixes
+
+* license the packages under MIT ([a0106ad](https://github.com/NYT87/design-system/commit/a0106ad3658f0d3159c70bb1f7491b7aaf387531))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @nyt87/tokens bumped from >=0.1.1 to >=0.1.2
+
 ## [0.2.2](https://github.com/NYT87/design-system/compare/ui-v0.2.1...ui-v0.2.2) (2026-11-25)
 
 
