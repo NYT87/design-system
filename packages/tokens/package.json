@@ -1,6 +1,6 @@
 {
   "name": "@nyt87/tokens",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Shared design tokens (CSS custom properties) for all projects",
   "type": "module",
   "files": [
